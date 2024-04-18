@@ -36,4 +36,21 @@ app.get("/getUser", function (req, res) {
     }
 });
 
+app.post("/signUp", function (req, res) {
+    const user = {
+        ...req.query,
+        isAdmin: false
+    };
+    const username = user.username;
+
+    console.log(`Request to sign up ${username} recieved`);
+    database.push(user);
+    
+    res.status(201).send({
+        username: username,
+        name: user.name,
+        isAdmin: user.isAdmin
+    });
+});
+
 app.listen(PORT);
