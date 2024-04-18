@@ -2,6 +2,7 @@
 // April 17, 2024
 
 const express = require("express");
+const expressSession = require("express-session")
 const app = express();
 const PORT = process.env.PORT || 3000;
 const database = [] // Stand in, while the AWS DB is being set up
