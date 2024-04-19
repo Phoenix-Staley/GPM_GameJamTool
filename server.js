@@ -3,12 +3,22 @@
 
 const express = require("express");
 const expressSession = require("express-session");
-const { uuid } = require("uuidv4");
+const { v4: uuidv4 } = require("uuid");
+require("dotenv").config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const database = [] // Stand in, while the AWS DB is being set up
 
 app.use(express.static("public"));
+app.use(expressSession({
+    genid: function(req) {
+        return uuidv4() // Use unique user IDs for session IDs
+    },
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true
+}));
 
 app.get("/", function (req, res) {
     console.log("Request recieved");
