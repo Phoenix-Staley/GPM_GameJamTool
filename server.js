@@ -47,6 +47,14 @@ app.post("/signUp", function (req, res) {
     const username = user.username;
 
     console.log(`Request to sign up ${username} recieved`);
+
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].username === req.query.username) {
+            res.status(400).send("Username taken");
+            return;
+        }
+    }
+
     database.push(user);
     
     res.status(201).send({
