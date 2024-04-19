@@ -76,4 +76,18 @@ app.post("/signUp", function (req, res) {
     });
 });
 
+app.delete("/deleteUser", function (req, res) {
+    const user = req.query;
+
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].username === req.query.username) {
+            database.splice(i,1);
+            res.sendStatus(200);
+            return;
+        }
+    }
+
+    res.status(404).send("Not found");
+});
+
 app.listen(PORT);
