@@ -57,7 +57,9 @@ app.post("/signUp", function (req, res) {
 
     database.push(user);
     
-    res.status(201).send({
+    res
+     .status(201)
+     .send({
         username: username,
         name: user.name,
         isAdmin: user.isAdmin
