@@ -29,6 +29,7 @@ app.get("/getUser", function (req, res) {
                 name: user.name,
                 isAdmin: user.isAdmin
             });
+            break;
         }
     }
 
