@@ -29,7 +29,7 @@ app.use(expressSession({
 app.use(userRouter);
 
 app.get("/", function (req, res) {
-    console.log("Request recieved");
+    console.log("/ request recieved");
     res.sendFile(__dirname + "/../public/index.html");
 });
 
