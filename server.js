@@ -9,7 +9,10 @@ require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const database = [] // Stand in, while the AWS DB is being set up
+const database = {
+    users: [],
+    gamejams: []
+}; // Stand in, while the AWS DB is being set up
 
 app.use(express.static("public"));
 app.use(expressSession({
@@ -42,14 +45,14 @@ userRouter.post("/signUp", function (req, res) {
     
     console.log(`Request to sign up ${username} recieved`);
 
-    for (let i = 0; i < database.length; i++) {
-        if (database[i].username === req.query.username) {
+    for (let i = 0; i < database.users.length; i++) {
+        if (database.users[i].username === req.query.username) {
             res.status(400).send("Username taken");
             return;
         }
     }
 
-    database.push(user);
+    database.users.push(user);
     
     res
      .status(201)
@@ -71,10 +74,10 @@ userRouter.get("/getUser", function (req, res) {
 
     console.log(`Request for ${req.query.username} recieved`);
 
-    for (let i = 0; i < database.length; i++) {
-        if (database[i].username === req.query.username) {
+    for (let i = 0; i < database.users.length; i++) {
+        if (database.users[i].username === req.query.username) {
             found = true;
-            const user = database[i]
+            const user = database.users[i]
             res.status(200).send({
                 username: user.username,
                 name: user.name,
@@ -101,9 +104,11 @@ userRouter.put("/updateUser", function (req, res) {
     
     const username = req.query.username;
 
-    for (let i = 0; i < database.length; i++) {
-        if (database[i].username === req.query.username) {
-            let user = database[i];
+    console.log(`Update request for ${username} recieved`);
+
+    for (let i = 0; i < database.users.length; i++) {
+        if (database.users[i].username === req.query.username) {
+            let user = database.users[i];
 
             user.bio = req.query.bio ? req.query.bio : user.bio;
             user.name = req.query.name ? req.query.name : user.name;
@@ -124,9 +129,11 @@ userRouter.put("/updateUser", function (req, res) {
 userRouter.delete("/deleteUser", function (req, res) {
     const user = req.query;
 
-    for (let i = 0; i < database.length; i++) {
-        if (database[i].username === req.query.username) {
-            database.splice(i,1);
+    console.log(`Deletion request for ${user.username} recieved`);
+
+    for (let i = 0; i < database.users.length; i++) {
+        if (database.users[i].username === req.query.username) {
+            database.users.splice(i,1);
             res.sendStatus(200);
             return;
         }
