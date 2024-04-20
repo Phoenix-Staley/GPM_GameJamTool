@@ -4,6 +4,7 @@
 const express = require("express");
 const expressSession = require("express-session");
 const { v4: uuidv4 } = require("uuid");
+const userRouter = express.Router();
 require("dotenv").config();
 
 const app = express();
@@ -19,37 +20,14 @@ app.use(expressSession({
     resave: true,
     saveUninitialized: true
 }));
+app.use(userRouter);
 
 app.get("/", function (req, res) {
     console.log("Request recieved");
     res.sendFile(__dirname + "/../public/index.html");
 });
 
-app.get("/getUser", function (req, res) {
-    let found = false;
-
-    console.log(`Request for ${req.query.username} recieved`);
-
-    for (let i = 0; i < database.length; i++) {
-        if (database[i].username === req.query.username) {
-            found = true;
-            const user = database[i]
-            res.status(200).send({
-                username: user.username,
-                name: user.name,
-                isAdmin: user.isAdmin
-            });
-            break;
-        }
-    }
-
-    if (!found) {
-        console.log("404 error");
-        res.status(404).send("Not found");
-    }
-});
-
-app.post("/signUp", function (req, res) {
+userRouter.post("/signUp", function (req, res) {
     const user = {
         ...req.query,
         isAdmin: false
@@ -76,7 +54,31 @@ app.post("/signUp", function (req, res) {
     });
 });
 
-app.delete("/deleteUser", function (req, res) {
+userRouter.get("/getUser", function (req, res) {
+    let found = false;
+
+    console.log(`Request for ${req.query.username} recieved`);
+
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].username === req.query.username) {
+            found = true;
+            const user = database[i]
+            res.status(200).send({
+                username: user.username,
+                name: user.name,
+                isAdmin: user.isAdmin
+            });
+            break;
+        }
+    }
+
+    if (!found) {
+        console.log("404 error");
+        res.status(404).send("Not found");
+    }
+});
+
+userRouter.delete("/deleteUser", function (req, res) {
     const user = req.query;
 
     for (let i = 0; i < database.length; i++) {
