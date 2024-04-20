@@ -53,6 +53,8 @@ userRouter.post("/signUp", function (req, res) {
     }
 
     database.users.push(user);
+
+    req.session.profile = user;
     
     res
      .status(201)
@@ -104,6 +106,11 @@ userRouter.put("/updateUser", function (req, res) {
     
     const username = req.query.username;
 
+    if (!req.session.profile) {
+        res.status(403).send("Not authorized");
+        return;
+    }
+
     console.log(`Update request for ${username} recieved`);
 
     for (let i = 0; i < database.users.length; i++) {
@@ -128,6 +135,18 @@ userRouter.put("/updateUser", function (req, res) {
 
 userRouter.delete("/deleteUser", function (req, res) {
     const user = req.query;
+
+    if (!user || !user.username) {
+        res.status(400).send("No 'username' query parameter");
+        return;
+    }
+
+    // Reject request if the user isn't logged in,
+    //  or they're not authorized to delete this account
+    if (!req.session || !req?.session?.profile || (!req.session.profile.isAdmin && req.session.profile.username !== user.username)) {
+        res.status(403).send("Not authorized");
+        return;
+    }
 
     console.log(`Deletion request for ${user.username} recieved`);
 
