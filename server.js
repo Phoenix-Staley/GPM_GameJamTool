@@ -30,7 +30,8 @@ app.get("/", function (req, res) {
 userRouter.post("/signUp", function (req, res) {
     const user = {
         ...req.query,
-        isAdmin: false
+        isAdmin: false,
+        bio: ""
     };
     const username = user.username;
 
@@ -50,7 +51,8 @@ userRouter.post("/signUp", function (req, res) {
      .send({
         username: username,
         name: user.name,
-        isAdmin: user.isAdmin
+        isAdmin: user.isAdmin,
+        bio: user.bio
     });
 });
 
@@ -66,7 +68,8 @@ userRouter.get("/getUser", function (req, res) {
             res.status(200).send({
                 username: user.username,
                 name: user.name,
-                isAdmin: user.isAdmin
+                isAdmin: user.isAdmin,
+                bio: user.bio
             });
             break;
         }
