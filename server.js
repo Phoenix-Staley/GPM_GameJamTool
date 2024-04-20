@@ -21,7 +21,10 @@ app.use(expressSession({
     },
     secret: process.env.SESSION_SECRET,
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 86400000
+    }
 }));
 app.use(userRouter);
 
