@@ -28,13 +28,18 @@ app.get("/", function (req, res) {
 });
 
 userRouter.post("/signUp", function (req, res) {
+    if (!req.query.username || !req.query.name) {
+        res.status(400).send("No 'name' or 'username' query parameters");
+        return;
+    }
+    
     const user = {
         ...req.query,
         isAdmin: false,
         bio: ""
     };
     const username = user.username;
-
+    
     console.log(`Request to sign up ${username} recieved`);
 
     for (let i = 0; i < database.length; i++) {
@@ -57,6 +62,11 @@ userRouter.post("/signUp", function (req, res) {
 });
 
 userRouter.get("/getUser", function (req, res) {
+    if (!req.query.username) {
+        res.status(400).send("No 'username' query parameter");
+        return;
+    }
+    
     let found = false;
 
     console.log(`Request for ${req.query.username} recieved`);
