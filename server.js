@@ -28,8 +28,8 @@ app.get("/", function (req, res) {
 });
 
 userRouter.post("/signUp", function (req, res) {
-    if (!req.query.username || !req.query.name) {
-        res.status(400).send("No 'name' or 'username' query parameters");
+    if (!req.query.username || !req.query.name || !req.query.password_encoded) {
+        res.status(400).send("No 'name', 'username', or 'password_encoded' query parameters.");
         return;
     }
     
