@@ -91,6 +91,36 @@ userRouter.get("/getUser", function (req, res) {
     }
 });
 
+userRouter.put("/updateUser", function (req, res) {
+    if (Object.keys(req.query).length < 2) {
+        res
+         .status(400)
+         .send("Not enough query parameters. Check documentation.");
+        return;
+    }
+    
+    const username = req.query.username;
+
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].username === req.query.username) {
+            let user = database[i];
+
+            user.bio = req.query.bio ? req.query.bio : user.bio;
+            user.name = req.query.name ? req.query.name : user.name;
+
+            res.status(200).send({
+                username: user.username,
+                name: user.name,
+                isAdmin: user.isAdmin,
+                bio: user.bio
+            });
+            return;
+        }
+    }
+
+    res.status(404).send("Not found");
+});
+
 userRouter.delete("/deleteUser", function (req, res) {
     const user = req.query;
 
