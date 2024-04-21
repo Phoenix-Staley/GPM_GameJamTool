@@ -1,0 +1,25 @@
+.title{
+    text-align: center;
+}
+.container{
+    display: flex;
+}
+.flex{
+    flex-grow: 1;
+    padding: 100 px;
+}
+#future{
+    background-color: red;
+}
+#ongoing{
+    background-color: green;
+}
+#past{
+    background-color: blue;
+}
+#button_div{
+
+    background-color: aquamarine;
+    display: flex;
+    justify-content: right;
+}
