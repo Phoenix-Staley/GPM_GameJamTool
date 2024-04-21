@@ -109,7 +109,7 @@ userRouter.put("/updateUser", function (req, res) {
     
     const username = req.query.username;
 
-    if (!req?.session?.profile || req.seession.profile.username !== username) {
+    if (!req?.session?.profile || req.sesssion.profile.username !== username) {
         res.status(403).send("Not authorized");
         return;
     }
