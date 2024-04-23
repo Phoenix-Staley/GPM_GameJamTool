@@ -180,6 +180,7 @@ gamejamRouter.post("/postJam", function (req, res) {
         const jam = database.gamejams[i];
         if (jam.title === req.query.title) {
             res.status(400).send("Title taken");
+            return;
         }
     }
     
