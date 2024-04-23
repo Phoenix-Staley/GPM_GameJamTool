@@ -287,6 +287,47 @@ gamejamRouter.put("/updateJam", function (req, res) {
     res.status(404).send("Not found");
 });
 
+gamejamRouter.put("/addOrRemoveParticipant", function (req, res) {
+    if (!req.query.title) {
+        res.status(400).send("No 'title' query parameter");
+        return;
+    }
+
+    if (!req?.session?.profile?.username) {
+        res.status(401).send("Not logged in");
+        return;
+    }
+
+    let jam = null;
+    let participants = [];
+    for (let i = 0; i < database.gamejams.length; i++) {
+        if (database.gamejams[i].title === req.query.title) {
+            jam = database.gamejams[i];
+            participants = database.gamejams[i].participants;
+        }
+    }
+
+    if (jam === null) {
+        console.log("Request to add participant to non-existant game jam received");
+        res.status(404).send("Not found");
+        return;
+    }
+
+    const newParticipant = req.session.profile.username;
+    for (let i = 0; i < participants.length; i++) {
+        if (participants[i] === newParticipant) {
+            jam.participants.splice(i,1);
+            res.status(200).send(jam);
+            console.log(`Request to remove ${req.session.profile.username} from '${jam.title}' participants received`);
+            return;
+        }
+    }
+
+    jam.participants.push(newParticipant);
+    res.status(200).send(jam);
+    console.log(`Request to add ${req.session.profile.username} to '${jam.title}' participants received`);
+});
+
 gamejamRouter.delete("/deleteJam", function (req, res) {
     const jam = req.query;
 
