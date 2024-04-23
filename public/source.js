@@ -3,9 +3,10 @@ document.addEventListener('DOMContentLoaded', function() {
   validate_input_fields();
 });
 
+
 // login button functionality
 let create_account_button = document.getElementById('submit_account_creation');
-create_account_button.addEventListener('click', testClick);
+create_account_button.addEventListener('click', create_account);
 
 let email_input = document.getElementById('email_input');
 email_input.addEventListener('input', validate_input_fields);
@@ -18,9 +19,6 @@ password_confirmation_input.addEventListener('input', validate_input_fields);
 
 // ensures that the input fields are not empty and do not contain spaces
 function validate_input_fields(){
-  console.log(password_input.value );
-  console.log(password_input.value.includes(' '));
-  console.log(password_input.value.includes(' '));
   if (email_input.value.includes(' ') || password_input.value.includes(' ')
       || email_input.value === '' || password_input.value === ''){
     create_account_button.disabled = true;
