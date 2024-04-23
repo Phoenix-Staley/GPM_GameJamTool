@@ -1,7 +1,21 @@
 
 
-const bcrypt = require('bcrypt');
+//const bcrypt = require('bcrypt'); // don't worry about for now
 
+async function foo(){
+
+    const response = await fetch('http://localhost:3000/signUp?' + 
+    new URLSearchParams({username: 'johndoe123', name: 'John Doe', password_encoded: 'hello'}), {method: 'POST'});
+    const response_text = await response.json();
+    console.log(response_text);
+    return;
+}
+
+foo();
+
+// if (response.ok) { // if HTTP-status is 200-299
+
+/*
 //http://localhost:3000/[dir]
 fetch(new Request(  {
     url: 'http://example.com/getUser?' + new URLSearchParams( { username: 'johndoe123'}),
@@ -26,3 +40,19 @@ async function fetchMovies() {
     // waits until the request completes...
     console.log(response);
   }
+
+  fetch(new Request({
+    url: 'http://localhost:3000/signUp?' + new URLSearchParams({
+    username: 'johndoe123',
+    name: 'John Doe',
+    password_encoded: 'hello'
+    }),
+    method: 'POST'
+    }));
+    
+  */
+
+
+
+
+
