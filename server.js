@@ -259,4 +259,32 @@ gamejamRouter.put("/updateJam", function (req, res) {
     res.status(404).send("Not found");
 });
 
+gamejamRouter.delete("/deleteJam", function (req, res) {
+    const jam = req.query;
+
+    if (!jam || !jam.title) {
+        res.status(400).send("No 'title' query parameter");
+        return;
+    }
+
+    // Reject request if the user isn't logged in,
+    //  or they're not authorized to delete game jams
+    if (!req?.session?.profile || !req.session.profile.isAdmin) {
+        res.status(403).send("Not authorized");
+        return;
+    }
+
+    console.log(`Deletion request for game jam '${jam.title}' recieved`);
+
+    for (let i = 0; i < database.gamejams.length; i++) {
+        if (database.gamejams[i].title === jam.title) {
+            database.gamejams.splice(i,1);
+            res.sendStatus(200);
+            return;
+        }
+    }
+
+    res.status(404).send("Not found");
+});
+
 app.listen(PORT);
