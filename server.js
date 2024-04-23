@@ -31,7 +31,7 @@ app.use(userRouter);
 app.use(gamejamRouter);
 
 app.get("/", function (req, res) {
-    console.log("/ request recieved");
+    console.log("/ request received");
     res.sendFile(__dirname + "/../public/index.html");
 });
 
@@ -320,7 +320,6 @@ gamejamRouter.put("/addOrRemoveParticipant", function (req, res) {
     }
 
     if (jam === null) {
-        console.log("Request to add participant to non-existant game jam received");
         res.status(404).send("Not found");
         console.log(`/addOrRemoveParticipant - 404 - ${req.query.title}`);
         return;
