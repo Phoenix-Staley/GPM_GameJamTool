@@ -28,6 +28,7 @@ app.use(expressSession({
     }
 }));
 app.use(userRouter);
+app.use(gamejamRouter);
 
 app.get("/", function (req, res) {
     console.log("/ request recieved");
@@ -223,6 +224,39 @@ gamejamRouter.get("/getJam", function (req, res) {
         console.log("404 error");
         res.status(404).send("Not found");
     }
+});
+
+gamejamRouter.put("/updateJam", function (req, res) {
+    if (Object.keys(req.query).length < 2) {
+        res
+         .status(400)
+         .send("Not enough query parameters. Check documentation.");
+        return;
+    }
+    
+    const title = req.query.title;
+
+    if (!req?.session?.profile || !req.session.profile.isAdmin) {
+        res.status(403).send("Not authorized");
+        return;
+    }
+
+    console.log(`Update game jam request for ${title} recieved`);
+
+    for (let i = 0; i < database.gamejams.length; i++) {
+        if (database.gamejams[i].title === title) {
+            let jam = database.gamejams[i];
+
+            jam.description = req.query.description ? req.query.description : jam.description;
+            jam.title = req.query.title ? req.query.title : jam.title;
+            jam.date = req.query.date ? req.query.date : jam.date;
+
+            res.status(200).send(jam);
+            return;
+        }
+    }
+
+    res.status(404).send("Not found");
 });
 
 app.listen(PORT);
