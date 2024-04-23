@@ -5,6 +5,7 @@ const express = require("express");
 const expressSession = require("express-session");
 const { v4: uuidv4 } = require("uuid");
 const userRouter = express.Router();
+const gamejamRouter = express.Router();
 require("dotenv").config();
 
 const app = express();
@@ -162,6 +163,39 @@ userRouter.delete("/deleteUser", function (req, res) {
     }
 
     res.status(404).send("Not found");
+});
+
+gamejamRouter.post("/postJam", function (req, res) {
+    if (!req.query.title || !req.query.date || !req.query.description) {
+        res.status(400).send("No 'title', 'date', or 'description' query parameters.");
+        return;
+    }
+
+    if (!req.session || !req?.session?.profile || !req.session.profile.isAdmin) {
+        res.status(403).send("Not authorized");
+        return;
+    }
+
+    for (let i = 0; i < database.gamejams.length; i++) {
+        const jam = database.gamejams[i];
+        if (jam.title === req.query.title) {
+            res.status(400).send("Title taken");
+        }
+    }
+    
+    const jam = {
+        ...req.query,
+        participants: [],
+        posts: []
+    };
+    
+    console.log(`Request to create game jam '${jam.title}' recieved`);
+
+    database.gamejams.push(jam);
+    
+    res
+     .status(201)
+     .send(jam);
 });
 
 app.listen(PORT);
