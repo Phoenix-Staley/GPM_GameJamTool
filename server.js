@@ -229,7 +229,6 @@ gamejamRouter.get("/getJam", function (req, res) {
 
     console.log(`Request for game jam '${req.query.title}' recieved`);
 
-    console.log(database.gamejams);
     for (let i = 0; i < database.gamejams.length; i++) {
         console.log(database.gamejams[i]);
         if (database.gamejams[i].title === req.query.title) {
