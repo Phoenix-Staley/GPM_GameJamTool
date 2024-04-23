@@ -244,6 +244,16 @@ gamejamRouter.get("/getJam", function (req, res) {
     }
 });
 
+gamejamRouter.get("/getJams", function (req, res) {
+    console.log(`Request for all game jams recieved`);
+
+    if (database.gamejams.length === 0) {
+        res.status(404).send([]);
+    } else {
+        res.status(200).send(database.gamejams);
+    }
+});
+
 gamejamRouter.put("/updateJam", function (req, res) {
     if (Object.keys(req.query).length < 2) {
         res
