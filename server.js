@@ -198,4 +198,30 @@ gamejamRouter.post("/postJam", function (req, res) {
      .send(jam);
 });
 
+gamejamRouter.get("/getJam", function (req, res) {
+    if (!req.query.title) {
+        res.status(400).send("No 'title' query parameter");
+        return;
+    }
+    
+    let found = false;
+
+    console.log(`Request for game jam '${req.query.title}' recieved`);
+
+    console.log(database.gamejams);
+    for (let i = 0; i < database.gamejams.length; i++) {
+        console.log(database.gamejams[i]);
+        if (database.gamejams[i].title === req.query.title) {
+            found = true;
+            res.status(200).send(database.gamejams[i]);
+            return;
+        }
+    }
+
+    if (!found) {
+        console.log("404 error");
+        res.status(404).send("Not found");
+    }
+});
+
 app.listen(PORT);
