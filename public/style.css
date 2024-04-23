@@ -1,0 +1,33 @@
+.title{
+    text-align: center;
+}
+.container{
+    display: flex;
+}
+.flex{
+    flex-grow: 1;
+    padding: 100 px;
+}
+#future{
+    background-color: red;
+}
+#ongoing{
+    background-color: green;
+}
+#past{
+    background-color: blue;
+}
+#button_div{
+
+    background-color: aquamarine;
+    display: flex;
+    justify-content: right;
+}
+.input_div{
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+.header_button{
+    padding-left: 10px;
+}
