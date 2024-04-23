@@ -35,7 +35,6 @@ function validate_input_fields(){
 // sends an account creation req to the server
 async function create_account(){
 
-
   const response = await fetch('http://localhost:3000/signUp?' + 
     new URLSearchParams({username: email_input.value, name: 'John Doe', password_encoded: password_input.value}), {method: 'POST'});
   const response_text = await response.json();
