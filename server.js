@@ -118,6 +118,16 @@ userRouter.get("/getUser", function (req, res) {
     console.log(`/getUser - 404 - ${req.query.username}`);
 });
 
+userRouter.get("/getUsers", function (req, res) {
+    if (database.users.length === 0) {
+        res.status(404).send([]);
+        console.log("/getUsers - 404 - No users");
+    } else {
+        res.status(200).send(database.gamejams);
+        console.log(`/getUsers - 200`);
+    }
+});
+
 userRouter.put("/updateUser", function (req, res) {
     if (Object.keys(req.query).length < 2 || !req.query?.username) {
         res
