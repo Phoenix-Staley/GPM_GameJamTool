@@ -35,6 +35,25 @@ app.get("/", function (req, res) {
     res.sendFile(__dirname + "/../public/index.html");
 });
 
+app.get("/makeAdmin", function (req, res) {
+    if (!req?.session?.profile?.username) {
+        res.sendStatus(403);
+        return;
+    }
+
+    const username = req.session.profile.username;
+
+    for (let i = 0; i < database.users.length; i++) {
+        if (database.users[i].username === username) {
+            const user = database.users[i];
+            req.session.profile = user;
+            database.users[i].isAdmin = true;
+            res.sendStatus(200);
+            return;
+        }
+    }
+});
+
 userRouter.post("/signUp", function (req, res) {
     if (!req.query.username || !req.query.name || !req.query.password_encoded) {
         res.status(400).send("No 'name', 'username', or 'password_encoded' query parameters.");
