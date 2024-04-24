@@ -1,0 +1,81 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Jam Manager at WSU</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="icon.png">
+</head>
+
+<body> <!-- main contents of webpage -->
+
+    <header> <!-- contents at top of webpage -->
+
+        <div id="button_div"> <!-- stores the buttons -->
+            <a class="header_button" href="login.html" title="login">
+                <button>Login</button>
+            </a>
+        </div>
+        
+
+    </header>
+
+    <main> <!-- contents of central part of webpage -->
+
+        <h1 class="title">Game Jam Test Title</h1>
+
+        <div class="container"> <!-- contains the time bars -->
+
+            <div class="flex">
+                <p id="start_date">
+                Starts at:
+                Month XX, YEAR; XX:XX PM
+                </p>
+            </div>
+            <div class="flex">
+                <p id="end_date">
+                Ends at:
+                Month XX, YEAR; XX:XX PM
+                </p>
+            </div>
+
+        </div>
+
+        <div class="container"> <!-- contains the desciption -->
+            <p>This is the game jam description</p>
+        </div>
+
+        <div class="container"> <!-- contains the the links to participants and submissions -->
+            <div class="flex" id="participants">
+                <h2 class="title">All Participants</h2>
+            </div>
+
+            <div class="flex" id="submissions">
+                <h2 class="title">All Submissions</h2>
+            </div>
+        </div>
+
+        <div class="container"> <!-- contains each post -->
+            <div class="post">
+                <h2 class="title">This is a post</h2>
+                <div class="comment">
+                    <p>this is a comment</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer> <!-- contents at bottom of webpage -->
+
+
+    </footer>
+    
+
+</body>
+
+    <!-- reference to scripts go at end -->
+    <script src="src/game_jam_view.js"></script>
+
+</html>

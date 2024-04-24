@@ -3,17 +3,18 @@
 // called when the page is loaded
 document.addEventListener('DOMContentLoaded', function() {
   createJamTest();
-  set_all_game_jams();
+  //set_all_game_jams();
 });
 
 // initializations
 let all_game_jams = [];
 
 // creates a jam for testing purposes
-async function createJamTest(){
+async function createJamTest(){ // user must be logged in to make req
+
   const response = await fetch(
     'http://localhost:3000/postJam?' + new URLSearchParams({
-      titel: 'Test Jam',
+      title: 'Test Jam',
       date: 'April 23',
       description: 'test description'
     }), 
@@ -29,7 +30,7 @@ async function set_all_game_jams(){
 
   const response = await fetch(
   'http://localhost:3000/getJams?', 
-  {method: 'POST'}
+  {method: 'GET'}
   );
   
   let status = response.status; // 201 if successfull, 404 if no jams
