@@ -8,6 +8,7 @@
 .flex{
     flex-grow: 1;
     padding: 100 px;
+    
 }
 
 .jam {
@@ -19,18 +20,11 @@
     width: calc(100vw / 3 - 40px);
 }
 
-.column {
-    flex: 1; /* Each column takes equal space */
-    background-color: #f0f0f0;
-    width: calc(100vw / 3 - 25px);
-    padding: 10px;
-    margin-right:1px
-    
+.item_details{
+    display:flex;
+    text-align:left;
 }
 
-.column:last-child {
-    margin-right: 0; /* Remove margin from the last column */
-}
 #future{
     background-color: red;
 }
@@ -56,6 +50,11 @@
 #footer_button{
     justify-content: right;
     display:flex
+}
+
+#info_subheading{
+    border: 2px solid #000;
+    margin:10px
 }
 
 .input_div{

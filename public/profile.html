@@ -25,46 +25,46 @@
                 <label for="edit-name">Edit name:</label><br>
                 <input type="text" id="edit-name" name="edit-name">
             </form>
-            <p>This is a generic bio here. It is a bunch of filler text. WEEEEEEEE</p>
+            <p class="flex">This is a generic bio here. It is a bunch of filler text.</p>
         </div>
 
         <div class="container"> <!-- 2nd line containing skills & game jams -->
             <div class="flex"> <!-- Skills -->
-                <h3>Skills</h3>
-                <div class="container"><li>Python</li><button>Remove</button></div>
-                <div class="container"><li>C#/Unity</li><button>Remove</button></div>
-                <div class="container"><li>Artwork</li><button>Remove</button></div>
-                <form>
+                <h3 id="info_subheading">Skills</h3>
+                <div class="item_details"><li>Python</li><button>Remove</button></div>
+                <div class="item_details"><li>C#/Unity</li><button>Remove</button></div>
+                <div class="item_details"><li>Artwork</li><button>Remove</button></div>
+                <form class="item_details">
                     <label for="add-skill">Add Skill:</label><br>
                     <input type="text"><br>
                 </form>
             </div>
 
             <div class="flex"> <!-- Game Jams Participated -->
-                <h3>Game Jams Participated</h3>
-                <li>2024 Game Jam</li>
-                <li>2023 Game Jam</li>
+                <h3 id="info_subheading">Game Jams Participated</h3>
+                <p>2024 Game Jam</p>
+                <p>2023 Game Jam</p>
             </div>
         </div>
 
         <div class="container"> <!-- 3rd line containing contact info & submissions -->
             <div class="flex"> <!-- Contact Info -->
-                <h3>Contact Info</h3>
+                <h3 id="info_subheading">Contact Info</h3>
 
-                <div class="container">
+                <div class="item_details">
                     <a href="">
                         <li>Discord</li>
                     </a>
                     <button>Remove</button>
                 </div>
 
-                <div class="container">
+                <div class="item_details">
                     <a href="">
                         <li>E-mail</li>
                     </a>
                     <button>Remove</button>
                 </div>
-                <form>
+                <form class="item_details">
                     <label for="add-contact-label">Contact Label:</label><br>
                     <input type="text"><br>
                     <label for="add-contact-link">Contact Link:</label><br>
@@ -74,14 +74,14 @@
             </div>
 
             <div class="flex"> <!-- Game Jams Participated -->
-                <h3>Submissions</h3>
-                <li>itch.io/link (2024 Game Jam)</li>
-                <li>itch.io/link (2024 Game Jam)</li>
+                <h3 id="info_subheading">Submissions</h3>
+                <p>itch.io/link (2024 Game Jam)</p>
+                <p>itch.io/link (2024 Game Jam)</p>
             </div>
         </div>
     </div>
 
-    <div class="footer_button"> <!-- Delete Account Button -->
+    <div id="footer_button"> <!-- Delete Account Button -->
         <a href="" title="delete-account">
             <button>Delete Account</button>
         </a>
