@@ -6,8 +6,15 @@ const expressSession = require("express-session");
 const { v4: uuidv4 } = require("uuid");
 const userRouter = express.Router();
 const gamejamRouter = express.Router();
-require("dotenv").config();
+const AWS = require("aws-sdk");
 
+require("dotenv").config();
+AWS.config.update({
+    region: "us-east-1"
+});
+
+
+const DynamoDB = new AWS.DynamoDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const database = {
