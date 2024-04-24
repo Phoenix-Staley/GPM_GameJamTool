@@ -135,22 +135,33 @@ userRouter.get("/getUser", function (req, res) {
         return;
     }
 
-    for (let i = 0; i < database.users.length; i++) {
-        if (database.users[i].username === req.query.username) {
-            const user = database.users[i]
-            res.status(200).send({
-                username: user.username,
-                name: user.name,
-                isAdmin: user.isAdmin,
-                bio: user.bio
-            });
-            console.log(`/getUser - 200 - ${user.username}`);
-            return;
+    DynamoDB.getItem({
+        TableName: "users",
+        Key: {
+            userID: { S: req.query.username }
         }
-    }
-
-    res.status(404).send("Not found");
-    console.log(`/getUser - 404 - ${req.query.username}`);
+     }, 
+     function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getUser - 500`);
+            console.error(err);
+            return;
+        } else {
+            if (data.Item === undefined) {
+                res.status(404).send("Not found");
+            } else {
+                const user = data.Item;
+                res.status(200).send({
+                    username: user.username.S,
+                    name: user.name.S,
+                    isAdmin: user.isAdmin.BOOL,
+                    bio: user.bio.S
+                });
+                console.log(`/getUser - 200 - ${user.username}`);
+            }
+        }
+    });
 });
 
 userRouter.get("/getUsers", function (req, res) {
