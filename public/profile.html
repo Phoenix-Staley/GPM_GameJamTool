@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Jam Manager at WSU</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="icon.png">
+</head>
+
+<body>
+    <div id="return_div"> <!-- stores the buttons -->
+        <a class="return_button" href="index.html" title="Return">
+            <button>Return</button>
+        </a>
+    </div>
+    
+    <h1 class="title">Martin Hundrup</h1> <!-- Username -->
+
+    <div class="title">
+        <div class="container"> <!-- Bio, edit username/name -->
+            <form action="profile.html" class="flex">
+                <label for="edit-username">Edit username:</label><br>
+                <input type="text" id="edit-username" name="edit-username"><br>
+                <label for="edit-name">Edit name:</label><br>
+                <input type="text" id="edit-name" name="edit-name">
+            </form>
+            <p>This is a generic bio here. It is a bunch of filler text. WEEEEEEEE</p>
+        </div>
+
+        <div class="container"> <!-- 2nd line containing skills & game jams -->
+            <div class="flex"> <!-- Skills -->
+                <h3>Skills</h3>
+                <div class="container"><li>Python</li><button>Remove</button></div>
+                <div class="container"><li>C#/Unity</li><button>Remove</button></div>
+                <div class="container"><li>Artwork</li><button>Remove</button></div>
+                <form>
+                    <label for="add-skill">Add Skill:</label><br>
+                    <input type="text"><br>
+                </form>
+            </div>
+
+            <div class="flex"> <!-- Game Jams Participated -->
+                <h3>Game Jams Participated</h3>
+                <li>2024 Game Jam</li>
+                <li>2023 Game Jam</li>
+            </div>
+        </div>
+
+        <div class="container"> <!-- 3rd line containing contact info & submissions -->
+            <div class="flex"> <!-- Contact Info -->
+                <h3>Contact Info</h3>
+
+                <div class="container">
+                    <a href="">
+                        <li>Discord</li>
+                    </a>
+                    <button>Remove</button>
+                </div>
+
+                <div class="container">
+                    <a href="">
+                        <li>E-mail</li>
+                    </a>
+                    <button>Remove</button>
+                </div>
+                <form>
+                    <label for="add-contact-label">Contact Label:</label><br>
+                    <input type="text"><br>
+                    <label for="add-contact-link">Contact Link:</label><br>
+                    <input type="text"><br>
+                    <button>Submit</button>
+                </form>
+            </div>
+
+            <div class="flex"> <!-- Game Jams Participated -->
+                <h3>Submissions</h3>
+                <li>itch.io/link (2024 Game Jam)</li>
+                <li>itch.io/link (2024 Game Jam)</li>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer_button"> <!-- Delete Account Button -->
+        <a href="" title="delete-account">
+            <button>Delete Account</button>
+        </a>
+    </div>
+</body>
+</html>

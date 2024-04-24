@@ -46,6 +46,18 @@
     display: flex;
     justify-content: right;
 }
+#return_div{
+
+    background-color: aquamarine;
+    display: flex;
+    justify-content: left;
+}
+
+#footer_button{
+    justify-content: right;
+    display:flex
+}
+
 .input_div{
     max-width: fit-content;
     margin-left: auto;
