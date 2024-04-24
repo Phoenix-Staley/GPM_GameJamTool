@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // initializations
 let all_game_jams = [];
 
+// creates a jam for testing purposes
 async function createJamTest(){
   const response = await fetch(
     'http://localhost:3000/postJam?' + new URLSearchParams({
