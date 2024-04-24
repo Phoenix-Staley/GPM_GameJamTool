@@ -242,7 +242,7 @@ userRouter.get("/getUsers", async function (req, res) {
     console.log(`/getUsers - 200`);
 });
 
-userRouter.put("/updateUser", function (req, res) {
+userRouter.put("/updateUser", async function (req, res) {
     if (Object.keys(req.query).length < 2 || !req.query?.username) {
         res
          .status(400)
@@ -253,24 +253,68 @@ userRouter.put("/updateUser", function (req, res) {
     
     const username = req.query.username;
 
-    if (!req?.session?.profile || req.session.profile.username !== username) {
+    let users = [];
+    await DynamoDB.scan({
+        TableName: "users"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find users", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            users = data.Items;
+        }
+    }).promise();
+
+    if (users.length === 0) {
+        return;
+    }
+
+    if (!req?.session?.profile) {
         res.status(403).send("Not authorized");
         console.log("/updateUser - 403 - Not authorized");
         return;
     }
 
-    for (let i = 0; i < database.users.length; i++) {
-        if (database.users[i].username === req.query.username) {
-            let user = database.users[i];
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username.S === req.query.username) {
+            let user = users[i];
 
-            user.bio = req.query.bio ? req.query.bio : user.bio;
-            user.name = req.query.name ? req.query.name : user.name;
+            user.bio = req.query.bio ? { S: req.query.bio } : user.bio;
+            user.name = req.query.name ? { S: req.query.name } : user.name;
+
+            let isUpdated = false;
+            await DynamoDB.putItem({
+                TableName: "users",
+                Item: user
+             },
+             function (err) {
+                if (err) {
+                    res.status(500).send("Unable to update user");
+                    console.log("/updateUser - 500");
+                    console.error(err);
+                    return;
+                } else {
+                    isUpdated = true;
+                }
+            }).promise();
+
+            if (!isUpdated) {
+                return;
+            }
+
+            if (req.session.profile.username !== user.username.S) {
+                res.status(403).send("Not authorized");
+                console.log("/updateUser - 403 - Not authorized");
+                return;
+            }
 
             res.status(200).send({
-                username: user.username,
-                name: user.name,
-                isAdmin: user.isAdmin,
-                bio: user.bio
+                username: user.username.S,
+                name: user.name.S,
+                isAdmin: user.isAdmin.BOOL,
+                bio: user.bio.S
             });
             console.log(`/updateUser - 200 - ${user.username}`);
             return;
