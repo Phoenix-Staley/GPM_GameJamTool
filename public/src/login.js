@@ -1,3 +1,8 @@
+const fetch = require('cross-fetch');
+//import fetch from '../node_modules/cross-fetch';
+//import fetch from 'cross-fetch';
+
+
 // const bcrypt = require('bcrypt'); // don't worry about it for now
 
 /* admin creds

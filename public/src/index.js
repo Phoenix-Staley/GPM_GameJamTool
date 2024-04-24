@@ -1,3 +1,8 @@
+const fetch = require('cross-fetch');
+//import fetch from '../node_modules/cross-fetch/';
+//import fetch from 'cross-fetch';
+
+
 // const bcrypt = require('bcrypt'); // don't worry about it for now
 
 // called when the page is loaded
@@ -18,10 +23,7 @@ async function createJamTest(){ // user must be logged in to make req
       date: 'April 23',
       description: 'test description'
     }), 
-    {
-      method: 'POST',
-      credentials: "same-origin"
-    }
+    {method: 'POST'}
     );
 
     let status = response.status;
