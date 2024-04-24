@@ -164,14 +164,32 @@ userRouter.get("/getUser", function (req, res) {
     });
 });
 
-userRouter.get("/getUsers", function (req, res) {
-    if (database.users.length === 0) {
-        res.status(404).send([]);
-        console.log("/getUsers - 404 - No users");
-    } else {
-        res.status(200).send(database.gamejams);
-        console.log(`/getUsers - 200`);
-    }
+userRouter.get("/getUsers", async function (req, res) {
+    let users = [];
+    await DynamoDB.scan({
+        TableName: "users"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getUser - 500`);
+            console.error(err);
+            return;
+        } else {
+            const rawUsers = data.Items;
+            for (let i = 0; i < data.Items.length; i++) {
+                const user = rawUsers[i];
+                users.push({
+                    username: user.username.S,
+                    bio: user.bio.S,
+                    name: user.name.S,
+                    isAdmin: user.isAdmin.BOOL
+                });
+            }
+        }
+    }).promise();
+
+    res.status(200).send(users);
+    console.log(`/getUsers - 200`);
 });
 
 userRouter.put("/updateUser", function (req, res) {
