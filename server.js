@@ -63,41 +63,69 @@ app.get("/makeAdmin", function (req, res) {
     }
 });
 
-userRouter.post("/signUp", function (req, res) {
+userRouter.post("/signUp", async function (req, res) {
     if (!req.query.username || !req.query.name || !req.query.password_encoded) {
         res.status(400).send("No 'name', 'username', or 'password_encoded' query parameters.");
         console.log("/signUp - 400 - Bad request");
         return;
     }
     
-    const user = {
+    const newUser = {
         ...req.query,
         isAdmin: false,
         bio: ""
     };
-    const username = user.username;
 
-    for (let i = 0; i < database.users.length; i++) {
-        if (database.users[i].username === req.query.username) {
+    let users = [];
+    await DynamoDB.scan({
+        TableName: "users"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find users", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            users = data.Items;
+        }
+    }).promise();
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username.S === newUser.username) {
             res.status(400).send("Username taken");
             console.log("/signUp - 400 - Username taken");
             return;
         }
     }
 
-    database.users.push(user);
-
-    req.session.profile = user;
+    DynamoDB.putItem({
+        TableName: "users",
+        Item: {
+            userID: { S: newUser.username },
+            username: { S: newUser.username },
+            name: { S: newUser.name },
+            bio: { S: newUser.bio },
+            password: { S: newUser.password_encoded },
+            isAdmin: { BOOL: newUser.isAdmin }
+        }
+     },
+     function (err) {
+        if (err) {
+            console.error("Unable to add user", err);
+        } else {
+            req.session.profile = newUser;
     
-    res
-     .status(201)
-     .send({
-        username: username,
-        name: user.name,
-        isAdmin: user.isAdmin,
-        bio: user.bio
+            res
+            .status(201)
+            .send({
+                username: newUser.username,
+                name: newUser.name,
+                isAdmin: newUser.isAdmin,
+                bio: newUser.bio
+            });
+            console.log(`/signUp - 201 - ${req.query.username}`);
+        }
     });
-    console.log(`/signUp - 201 - ${req.query.username}`);
 });
 
 userRouter.get("/getUser", function (req, res) {
