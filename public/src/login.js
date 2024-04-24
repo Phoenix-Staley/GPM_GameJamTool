@@ -1,4 +1,14 @@
+const fetch = require('cross-fetch');
+//import fetch from '../node_modules/cross-fetch';
+//import fetch from 'cross-fetch';
+
+
 // const bcrypt = require('bcrypt'); // don't worry about it for now
+
+/* admin creds
+  username: cesarus123
+  password: hello
+*/
 
 // called when the page is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,5 +38,18 @@ password_input.addEventListener('input', validate_input_fields);
 
 // attempts to login a prexisting user
 async function login(){
+
+  const response = await fetch(
+    'http://localhost:3000/signIn?' + new URLSearchParams({
+      username: username_input.value, 
+      password_encoded: password_input.value
+      }),
+      {method: 'POST'});
   
+  let status = response.status; // 200 if successful
+/*
+  if (status === 200){
+    window.location.assign('index.html');
+  }
+  */
 }

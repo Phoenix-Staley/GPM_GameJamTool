@@ -46,6 +46,12 @@
     display: flex;
     justify-content: right;
 }
+#submissions{
+    background-color: blue;
+}
+#participants{
+    background-color: red;
+}
 .input_div{
     max-width: fit-content;
     margin-left: auto;

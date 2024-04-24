@@ -52,7 +52,7 @@ async function create_account(){
   if (status === 201){ // successful
     const message = document.createTextNode('user created successfully');
     output_div.appendChild(message);
-
+    console.log(await response.json()); // gets the user info
     // TODO: login user
     // TODO: send user to self profile page
   }
