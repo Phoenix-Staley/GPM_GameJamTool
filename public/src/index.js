@@ -18,11 +18,14 @@ async function createJamTest(){ // user must be logged in to make req
       date: 'April 23',
       description: 'test description'
     }), 
-    {method: 'POST'}
+    {
+      method: 'POST',
+      credentials: "same-origin"
+    }
     );
 
     let status = response.status;
-    console.log('inside test' + status);
+    console.log('inside test ' + status);
 }
 
 // sets the array of gamejams

@@ -169,6 +169,7 @@ userRouter.post("/signIn", async function (req, res) {
             bio: user.bio.S,
             isAdmin: user.isAdmin.BOOL
         };
+        console.log(req.session.profile);
         res.status(200).send(req.session.profile);
         console.log(`/signIn - 200 - ${user.username.S}`);
         return;
@@ -391,6 +392,7 @@ userRouter.delete("/deleteUser", async function (req, res) {
 
 // Game Jam Related Routes
 gamejamRouter.post("/postJam", function (req, res) {
+    console.log(req.session.profile);
     if (!req.query.title || !req.query.date || !req.query.description) {
         res.status(400).send("No 'title', 'date', or 'description' query parameters.");
         console.log("/postJam - 400 - Bad request");

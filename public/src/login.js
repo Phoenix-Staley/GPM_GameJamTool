@@ -41,6 +41,10 @@ async function login(){
       }),
       {method: 'POST'});
   
-  let status = response.status; // 201 if successful
-
+  let status = response.status; // 200 if successful
+/*
+  if (status === 200){
+    window.location.assign('index.html');
+  }
+  */
 }
