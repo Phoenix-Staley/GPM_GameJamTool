@@ -128,6 +128,56 @@ userRouter.post("/signUp", async function (req, res) {
     });
 });
 
+userRouter.post("/signIn", async function (req, res) {
+    if (!req.query?.username || !req.query?.password_encoded) {
+        res.status(400).send("No 'username' or 'password' query parameters.");
+        console.log("/signIn - 400 - Bad request");
+        return;
+    }
+
+    let user = undefined;
+    await DynamoDB.getItem({
+        TableName: "users",
+        Key: {
+            userID: { S: req.query.username }
+        }
+     }, 
+     function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getUser - 500`);
+            console.error(err);
+            return;
+        } else if (data.Item === undefined) {
+            res.status(403).send("Incorrect username or password");
+            console.log(`/signIn - 403 - Incorrect username or password`);
+            return;
+        } else {
+            user = data.Item;
+        }
+    }).promise();
+
+    if (user === undefined) {
+        return;
+    }
+
+    if (user.password.S === req.query.password_encoded) {
+        req.session.profile = {
+            username: user.username.S,
+            name: user.name.S,
+            bio: user.bio.S,
+            isAdmin: user.isAdmin.BOOL
+        };
+        res.status(200).send(req.session.profile);
+        console.log(`/signIn - 200 - ${user.username.S}`);
+        return;
+    } else {
+        res.status(403).send("Incorrect username or password");
+        console.log(`/signIn - 403 - Incorrect username or password`);
+        return;
+    }
+});
+
 userRouter.get("/getUser", function (req, res) {
     if (!req.query.username) {
         res.status(400).send("No 'username' query parameter");
