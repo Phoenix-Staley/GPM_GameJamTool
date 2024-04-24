@@ -1,4 +1,4 @@
-const fetch = require('cross-fetch');
+//const fetch = require('cross-fetch');
 //import fetch from '../node_modules/cross-fetch';
 //import fetch from 'cross-fetch';
 
