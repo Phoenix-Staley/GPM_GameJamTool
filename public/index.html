@@ -30,27 +30,75 @@
 
         <div class="container"> <!-- contains the search bars -->
 
-            <div class="flex"><p>search by name</p></div>
-            <div class="flex"><p>search by skill</p></div>
-
-        </div>
-
-        <div class="container"> <!-- contains the jam type divs -->
-
-            <div class="flex" id="future"> <!-- future jams -->
-                <h2 class="title">Future Jams</h2>
+            <div class="flex"><p>search by name</p>
+                <form action="search.html">
+                    <input type="text" id="search-name">
+                </form>
             </div>
-
-            <div class="flex" id="ongoing"> <!-- ongoing jams -->
-                <h2 class="title">Ongoing Jams</h2>
-            </div>
-
-            <div class="flex" id="past"> <!-- past jams -->
-                <h2 class="title">Past Jams</h2>
+            
+            <div class="flex"><p>search by skill</p>
+                <form action="search.html">
+                    <input type="text" id="search-skill">
+                </form>
             </div>
 
         </div>
 
+        <div class="container"> <!-- contains the jams -->
+
+            <div class="flex">
+
+                <div class="jam" id="future"> <!-- future jams header -->
+                    <h2 class="title">Future Jams</h2>
+                </div>
+
+                <div class="jam" id="future-jam">
+                    <a href=""> <!-- add URL here -->
+                        <h2 class="jam-name">My Future Game Jam</h2>
+                        <p>Begins 05/04/2024 00:00 PST</p>
+                        <p>0 participants</p>
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="flex">
+
+                <div class="jam" id="ongoing"> <!-- ongoing jams header -->
+                    <h2 class="title">Ongoing Jams</h2>
+                </div>
+
+                <div class="jam" id="ongoing-jam">
+                    <a href=""> <!-- add URL here -->
+                        <h2 class="jam-name">My Current Game Jam</h2>
+                        <p>Ends 05/28/2024 00:00 PST</p>
+                        <p>3 participants</p>
+                    </a>
+                </div>
+
+            </div>
+            
+            <div class="flex">
+
+                <div class="jam" id="past"> <!-- past jams header -->
+                    <h2 class="title">Past Jams</h2>
+                </div>
+
+                <div class="jam" id="past-jam">
+                    <a href=""> <!-- add URL here -->
+                        <h2 class="jam-name">My Past Game Jam</h2>
+                        <p>Ended 04/01/2024 00:00 PST</p>
+                        <p>5 participants</p>
+                    </a>
+                </div>
+                
+            </div>
+
+
+            
+        </div>
+        
+        
     </main>
 
     <footer> <!-- contents at bottom of webpage -->
