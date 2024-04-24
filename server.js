@@ -326,7 +326,7 @@ userRouter.put("/updateUser", async function (req, res) {
     console.log(`/updateUser - 404 - ${req.session.profile.username}`);
 });
 
-userRouter.delete("/deleteUser", function (req, res) {
+userRouter.delete("/deleteUser", async function (req, res) {
     const user = req.query;
 
     if (!user || !user.username) {
@@ -343,17 +343,50 @@ userRouter.delete("/deleteUser", function (req, res) {
         return;
     }
 
-    for (let i = 0; i < database.users.length; i++) {
-        if (database.users[i].username === req.query.username) {
-            database.users.splice(i,1);
-            res.sendStatus(200);
-            console.log(`/deleteUser - 200 - ${user.username}`);
+    let users = [];
+    await DynamoDB.scan({
+        TableName: "users"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find users", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            users = data.Items;
+        }
+    }).promise();
+
+    if (users.length === 0) {
+        return;
+    }
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username.S === req.query.username) {
+            const rawUser = users[i];
+            DynamoDB.deleteItem({
+                TableName: "users",
+                Key: {
+                    userID: { S: rawUser.username.S }
+                }
+             },
+             function (err) {
+                if (err) {
+                    console.error("Unable to delete user", err);
+                    res.sendStatus(500);
+                    return;
+                } else {
+                    res.sendStatus(200);
+                    console.log(`/deleteUser - 200 - ${user.username}`);
+                    return;
+                }
+            });
             return;
         }
     }
 
     res.status(404).send("Not found");
-    console.log(`/updateuser - 404 - ${user.username}`);
+    console.log(`/deleteUser - 404 - ${user.username}`);
 });
 
 // Game Jam Related Routes
