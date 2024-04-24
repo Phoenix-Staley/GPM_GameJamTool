@@ -42,6 +42,7 @@ app.get("/", function (req, res) {
     res.sendFile(__dirname + "/../public/index.html");
 });
 
+// User Related Routes
 app.get("/makeAdmin", function (req, res) {
     if (!req?.session?.profile?.username) {
         res.sendStatus(403);
@@ -355,6 +356,7 @@ userRouter.delete("/deleteUser", function (req, res) {
     console.log(`/updateuser - 404 - ${user.username}`);
 });
 
+// Game Jam Related Routes
 gamejamRouter.post("/postJam", function (req, res) {
     if (!req.query.title || !req.query.date || !req.query.description) {
         res.status(400).send("No 'title', 'date', or 'description' query parameters.");
