@@ -6,8 +6,15 @@ const expressSession = require("express-session");
 const { v4: uuidv4 } = require("uuid");
 const userRouter = express.Router();
 const gamejamRouter = express.Router();
-require("dotenv").config();
+const AWS = require("aws-sdk");
 
+require("dotenv").config();
+AWS.config.update({
+    region: "us-east-1"
+});
+
+
+const DynamoDB = new AWS.DynamoDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const database = {
@@ -31,10 +38,11 @@ app.use(userRouter);
 app.use(gamejamRouter);
 
 app.get("/", function (req, res) {
-    console.log("/ request recieved");
+    console.log("/ request received");
     res.sendFile(__dirname + "/../public/index.html");
 });
 
+// User Related Routes
 app.get("/makeAdmin", function (req, res) {
     if (!req?.session?.profile?.username) {
         res.sendStatus(403);
@@ -56,41 +64,119 @@ app.get("/makeAdmin", function (req, res) {
     }
 });
 
-userRouter.post("/signUp", function (req, res) {
+userRouter.post("/signUp", async function (req, res) {
     if (!req.query.username || !req.query.name || !req.query.password_encoded) {
         res.status(400).send("No 'name', 'username', or 'password_encoded' query parameters.");
         console.log("/signUp - 400 - Bad request");
         return;
     }
     
-    const user = {
+    const newUser = {
         ...req.query,
         isAdmin: false,
         bio: ""
     };
-    const username = user.username;
 
-    for (let i = 0; i < database.users.length; i++) {
-        if (database.users[i].username === req.query.username) {
+    let users = [];
+    await DynamoDB.scan({
+        TableName: "users"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find users", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            users = data.Items;
+        }
+    }).promise();
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username.S === newUser.username) {
             res.status(400).send("Username taken");
             console.log("/signUp - 400 - Username taken");
             return;
         }
     }
 
-    database.users.push(user);
-
-    req.session.profile = user;
+    DynamoDB.putItem({
+        TableName: "users",
+        Item: {
+            userID: { S: newUser.username },
+            username: { S: newUser.username },
+            name: { S: newUser.name },
+            bio: { S: newUser.bio },
+            password: { S: newUser.password_encoded },
+            isAdmin: { BOOL: newUser.isAdmin }
+        }
+     },
+     function (err) {
+        if (err) {
+            console.error("Unable to add user", err);
+        } else {
+            req.session.profile = newUser;
     
-    res
-     .status(201)
-     .send({
-        username: username,
-        name: user.name,
-        isAdmin: user.isAdmin,
-        bio: user.bio
+            res
+            .status(201)
+            .send({
+                username: newUser.username,
+                name: newUser.name,
+                isAdmin: newUser.isAdmin,
+                bio: newUser.bio
+            });
+            console.log(`/signUp - 201 - ${req.query.username}`);
+        }
     });
-    console.log(`/signUp - 201 - ${req.query.username}`);
+});
+
+userRouter.post("/signIn", async function (req, res) {
+    if (!req.query?.username || !req.query?.password_encoded) {
+        res.status(400).send("No 'username' or 'password' query parameters.");
+        console.log("/signIn - 400 - Bad request");
+        return;
+    }
+
+    let user = undefined;
+    await DynamoDB.getItem({
+        TableName: "users",
+        Key: {
+            userID: { S: req.query.username }
+        }
+     }, 
+     function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getUser - 500`);
+            console.error(err);
+            return;
+        } else if (data.Item === undefined) {
+            res.status(403).send("Incorrect username or password");
+            console.log(`/signIn - 403 - Incorrect username or password`);
+            return;
+        } else {
+            user = data.Item;
+        }
+    }).promise();
+
+    if (user === undefined) {
+        return;
+    }
+
+    if (user.password.S === req.query.password_encoded) {
+        req.session.profile = {
+            username: user.username.S,
+            name: user.name.S,
+            bio: user.bio.S,
+            isAdmin: user.isAdmin.BOOL
+        };
+        res.status(200).send(req.session.profile);
+        console.log(`/signIn - 200 - ${user.username.S}`);
+        return;
+    } else {
+        res.status(403).send("Incorrect username or password");
+        console.log(`/signIn - 403 - Incorrect username or password`);
+        return;
+    }
 });
 
 userRouter.get("/getUser", function (req, res) {
@@ -100,35 +186,64 @@ userRouter.get("/getUser", function (req, res) {
         return;
     }
 
-    for (let i = 0; i < database.users.length; i++) {
-        if (database.users[i].username === req.query.username) {
-            const user = database.users[i]
-            res.status(200).send({
-                username: user.username,
-                name: user.name,
-                isAdmin: user.isAdmin,
-                bio: user.bio
-            });
-            console.log(`/getUser - 200 - ${user.username}`);
-            return;
+    DynamoDB.getItem({
+        TableName: "users",
+        Key: {
+            userID: { S: req.query.username }
         }
-    }
-
-    res.status(404).send("Not found");
-    console.log(`/getUser - 404 - ${req.query.username}`);
+     }, 
+     function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getUser - 500`);
+            console.error(err);
+            return;
+        } else {
+            if (data.Item === undefined) {
+                res.status(404).send("Not found");
+            } else {
+                const user = data.Item;
+                res.status(200).send({
+                    username: user.username.S,
+                    name: user.name.S,
+                    isAdmin: user.isAdmin.BOOL,
+                    bio: user.bio.S
+                });
+                console.log(`/getUser - 200 - ${user.username}`);
+            }
+        }
+    });
 });
 
-userRouter.get("/getUsers", function (req, res) {
-    if (database.users.length === 0) {
-        res.status(404).send([]);
-        console.log("/getUsers - 404 - No users");
-    } else {
-        res.status(200).send(database.gamejams);
-        console.log(`/getUsers - 200`);
-    }
+userRouter.get("/getUsers", async function (req, res) {
+    let users = [];
+    await DynamoDB.scan({
+        TableName: "users"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getUser - 500`);
+            console.error(err);
+            return;
+        } else {
+            const rawUsers = data.Items;
+            for (let i = 0; i < data.Items.length; i++) {
+                const user = rawUsers[i];
+                users.push({
+                    username: user.username.S,
+                    bio: user.bio.S,
+                    name: user.name.S,
+                    isAdmin: user.isAdmin.BOOL
+                });
+            }
+        }
+    }).promise();
+
+    res.status(200).send(users);
+    console.log(`/getUsers - 200`);
 });
 
-userRouter.put("/updateUser", function (req, res) {
+userRouter.put("/updateUser", async function (req, res) {
     if (Object.keys(req.query).length < 2 || !req.query?.username) {
         res
          .status(400)
@@ -139,24 +254,68 @@ userRouter.put("/updateUser", function (req, res) {
     
     const username = req.query.username;
 
-    if (!req?.session?.profile || req.session.profile.username !== username) {
+    let users = [];
+    await DynamoDB.scan({
+        TableName: "users"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find users", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            users = data.Items;
+        }
+    }).promise();
+
+    if (users.length === 0) {
+        return;
+    }
+
+    if (!req?.session?.profile) {
         res.status(403).send("Not authorized");
         console.log("/updateUser - 403 - Not authorized");
         return;
     }
 
-    for (let i = 0; i < database.users.length; i++) {
-        if (database.users[i].username === req.query.username) {
-            let user = database.users[i];
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username.S === req.query.username) {
+            let user = users[i];
 
-            user.bio = req.query.bio ? req.query.bio : user.bio;
-            user.name = req.query.name ? req.query.name : user.name;
+            user.bio = req.query.bio ? { S: req.query.bio } : user.bio;
+            user.name = req.query.name ? { S: req.query.name } : user.name;
+
+            let isUpdated = false;
+            await DynamoDB.putItem({
+                TableName: "users",
+                Item: user
+             },
+             function (err) {
+                if (err) {
+                    res.status(500).send("Unable to update user");
+                    console.log("/updateUser - 500");
+                    console.error(err);
+                    return;
+                } else {
+                    isUpdated = true;
+                }
+            }).promise();
+
+            if (!isUpdated) {
+                return;
+            }
+
+            if (req.session.profile.username !== user.username.S) {
+                res.status(403).send("Not authorized");
+                console.log("/updateUser - 403 - Not authorized");
+                return;
+            }
 
             res.status(200).send({
-                username: user.username,
-                name: user.name,
-                isAdmin: user.isAdmin,
-                bio: user.bio
+                username: user.username.S,
+                name: user.name.S,
+                isAdmin: user.isAdmin.BOOL,
+                bio: user.bio.S
             });
             console.log(`/updateUser - 200 - ${user.username}`);
             return;
@@ -167,7 +326,7 @@ userRouter.put("/updateUser", function (req, res) {
     console.log(`/updateUser - 404 - ${req.session.profile.username}`);
 });
 
-userRouter.delete("/deleteUser", function (req, res) {
+userRouter.delete("/deleteUser", async function (req, res) {
     const user = req.query;
 
     if (!user || !user.username) {
@@ -184,19 +343,53 @@ userRouter.delete("/deleteUser", function (req, res) {
         return;
     }
 
-    for (let i = 0; i < database.users.length; i++) {
-        if (database.users[i].username === req.query.username) {
-            database.users.splice(i,1);
-            res.sendStatus(200);
-            console.log(`/deleteUser - 200 - ${user.username}`);
+    let users = [];
+    await DynamoDB.scan({
+        TableName: "users"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find users", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            users = data.Items;
+        }
+    }).promise();
+
+    if (users.length === 0) {
+        return;
+    }
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username.S === req.query.username) {
+            const rawUser = users[i];
+            DynamoDB.deleteItem({
+                TableName: "users",
+                Key: {
+                    userID: { S: rawUser.username.S }
+                }
+             },
+             function (err) {
+                if (err) {
+                    console.error("Unable to delete user", err);
+                    res.sendStatus(500);
+                    return;
+                } else {
+                    res.sendStatus(200);
+                    console.log(`/deleteUser - 200 - ${user.username}`);
+                    return;
+                }
+            });
             return;
         }
     }
 
     res.status(404).send("Not found");
-    console.log(`/updateuser - 404 - ${user.username}`);
+    console.log(`/deleteUser - 404 - ${user.username}`);
 });
 
+// Game Jam Related Routes
 gamejamRouter.post("/postJam", function (req, res) {
     if (!req.query.title || !req.query.date || !req.query.description) {
         res.status(400).send("No 'title', 'date', or 'description' query parameters.");
@@ -320,7 +513,6 @@ gamejamRouter.put("/addOrRemoveParticipant", function (req, res) {
     }
 
     if (jam === null) {
-        console.log("Request to add participant to non-existant game jam received");
         res.status(404).send("Not found");
         console.log(`/addOrRemoveParticipant - 404 - ${req.query.title}`);
         return;
