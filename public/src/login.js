@@ -1,5 +1,10 @@
 // const bcrypt = require('bcrypt'); // don't worry about it for now
 
+/* admin creds
+  username: cesarus123
+  password: hello
+*/
+
 // called when the page is loaded
 document.addEventListener('DOMContentLoaded', function() {
     validate_input_fields();
@@ -28,5 +33,14 @@ password_input.addEventListener('input', validate_input_fields);
 
 // attempts to login a prexisting user
 async function login(){
+
+  const response = await fetch(
+    'http://localhost:3000/signIn?' + new URLSearchParams({
+      username: username_input.value, 
+      password_encoded: password_input.value
+      }),
+      {method: 'POST'});
   
+  let status = response.status; // 201 if successful
+
 }
