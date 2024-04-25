@@ -942,6 +942,55 @@ postRouter.get("/getPost", async function (req, res) {
     }
 });
 
+postRouter.get("/getPosts", async function (req, res) {
+    if (!req.query?.jam_title) {
+        res.status(400).send("No 'title' or 'jam_title' query parameter");
+        console.log("/getJam - 400 - Bad request");
+        return;
+    }
+
+    let refinedPosts = [];
+    let posts = null;
+    await DynamoDB.scan({
+        TableName: "posts"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getPost - 500`);
+            console.error(err);
+            return;
+        } else {
+            posts = data.Items;
+        }
+    }).promise();
+
+    if (posts === null) {
+        return;
+    }
+
+    for (let i = 0; i < posts.length; i++) {
+        let post = posts[i];
+        if (post.postID.S === (post.title.S + " - " + req.query.jam_title)) {
+            refinedPosts.push({
+                title: post.title.S,
+                date: post.date.S,
+                content: post.content.S,
+                comments: []
+            });
+            for (let j = 0; j < post.comments.L.length; j++) {
+                let comment = post.comments.L[j].M;
+                refinedPosts[-1].comments.push({
+                    poster: comment.poster,
+                    content: comment.content
+                });
+            }
+        }
+    }
+
+    res.status(200).send(refinedPosts);
+});
+
+// Comment routes
 let commentCounter = 0; //for commentID
 
 postRouter.post("/makeComment", async function (req, res) {
@@ -979,7 +1028,5 @@ postRouter.post("/makeComment", async function (req, res) {
         }
     });
 });
-
-
 
 app.listen(PORT);
