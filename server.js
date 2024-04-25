@@ -852,8 +852,6 @@ postRouter.post("/makePost", async function (req, res) {
         }
     }
 
-    const comments = [];
-    console.log("Before putItem");
     DynamoDB.putItem({
         TableName: "posts",
         Item: {
@@ -861,14 +859,35 @@ postRouter.post("/makePost", async function (req, res) {
             title: { S: newPost.title },
             content: { S: newPost.content },
             date: { S: newPost.date },
-            comments: { L: comments }
+            comments: { L: [] }
         }
      },
-     function (err) {
-        console.log("After putItem");
+     async function (err) {
         if (err) {
-            console.error("Unable to add user", err);
+            console.error("Unable to add post", err);
         } else {
+            parentJam.posts.L.push({ S: newPost.title + " - " + newPost.jam_title });
+
+            let isUpdated = false;
+            await DynamoDB.putItem({
+                TableName: "gameJams",
+                Item: parentJam
+             },
+             function (err) {
+                if (err) {
+                    res.status(500).send("Unable to update game jam");
+                    console.log("/updateJam - 500");
+                    console.error(err);
+                    return;
+                } else {
+                    isUpdated = true;
+                }
+            }).promise();
+
+            if (!isUpdated) {
+                return;
+            }
+
             res
              .status(201)
              .send(newPost);
