@@ -226,7 +226,7 @@ function user_clicked(user){
 
 // fills the user div with all participants
 function display_searched_users(){
-
+  document.querySelectorAll('.user').forEach(e => e.remove());
   // remove all displayed searched users on empty query
   if (username_input.value === ''){ 
     document.querySelectorAll('.user').forEach(e => e.remove());
