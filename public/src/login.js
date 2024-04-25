@@ -49,9 +49,8 @@ async function login(){
   let status = response.status; // 200 if successful
 
   console.log(status);
-/*
-  if (status === 200){
+
+  if (status === 203){ // success, return to home page
     window.location.assign('index.html');
   }
-  */
 }

@@ -88,7 +88,6 @@ function set_all_game_jams_test(){
       particpants: ['user 1', 'user 2'],
       post: []
     })
-    console.log(all_game_jams[i - 1].date);
   }
 }
 
@@ -139,7 +138,6 @@ function draw_all_game_jams(){
     // check date of jam to determine category
     const current_date = new Date();
     const jam_date = new Date(all_game_jams[i].date);
-    console.log(jam_date);
     if (jam_date < current_date){ // past jam
       insertAfter(past_div, jam_div);
     }
