@@ -119,7 +119,10 @@ function fill_users(game_jam){
   game_jam.participants.forEach(function(user){
     let username = document.createElement('h3');
     username.textContent = user;
-    insertAfter(participants_div, username);
+    let user_div = document.createElement('div');
+    user_div.classList.add('user');
+    user_div.appendChild(username);
+    insertAfter(participants_div, user_div);
   });
 }
 
