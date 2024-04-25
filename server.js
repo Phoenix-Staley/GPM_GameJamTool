@@ -6,6 +6,7 @@ const expressSession = require("express-session");
 const { v4: uuidv4 } = require("uuid");
 const userRouter = express.Router();
 const gamejamRouter = express.Router();
+const postRouter = express.Router();
 const AWS = require("aws-sdk");
 
 require("dotenv").config();
@@ -36,6 +37,7 @@ app.use(expressSession({
 }));
 app.use(userRouter);
 app.use(gamejamRouter);
+app.use(postRouter);
 
 app.get("/", function (req, res) {
     console.log("/ request received");
@@ -561,6 +563,94 @@ gamejamRouter.delete("/deleteJam", function (req, res) {
 
     res.status(404).send("Not found");
     console.log(`/deletJam - 404 - ${req.query.title}`);
+});
+
+postRouter.post("/makePost", async function (req, res) {
+    if (!req.query?.title || !req.query.content || !req.query.jam_title) {
+        res.status(400).send("No 'title', 'content', or 'jam_title' query parameters.");
+        console.log("/makePost - 400 - Bad request");
+        return;
+    }
+    
+    const date = new Date();
+    const newPost = {
+        ...req.query,
+        comments: [],
+        date: date.toJSON().slice(0,10)
+    };
+
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find game jams", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+
+    let parentJam = null;
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === newPost.jam_title) {
+            parentJam = jams[i];
+        }
+    }
+
+    if (parentJam === null) {
+        res.status(404).send("Game jam not found");
+        console.log(`/makePost - 4 - ${newPost.jam_title}`);
+        return;
+    }
+
+    let posts = [];
+    await DynamoDB.scan({
+        TableName: "posts"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to access posts", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            posts = data.Items;
+        }
+    }).promise();
+
+    for (let i = 0; i < posts.length; i++) {
+        if (posts[i].title.S === newPost.title && posts[i].jam_title.S === newPost.jam_title) {
+            res.status(400).send("Title taken");
+            console.log ("/makePost - 400 - Title taken");
+            return;
+        }
+    }
+
+    const comments = [];
+    console.log("Before putItem");
+    DynamoDB.putItem({
+        TableName: "posts",
+        Item: {
+            postID: { S: newPost.title + " - " + newPost.jam_title },
+            title: { S: newPost.title },
+            content: { S: newPost.content },
+            date: { S: newPost.date },
+            // comments: { L: comments }
+        }
+     },
+     function (err) {
+        console.log("After putItem");
+        if (err) {
+            console.error("Unable to add user", err);
+        } else {
+            res
+             .status(201)
+             .send(newPost);
+            console.log(`/makePost - 201 - ${newPost.title}`);
+        }
+    });
 });
 
 app.listen(PORT);
