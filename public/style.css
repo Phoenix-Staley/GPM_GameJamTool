@@ -1,5 +1,6 @@
 .title{
     text-align: center;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 .container{
     display: flex;
@@ -8,20 +9,21 @@
 .flex{
     flex-grow: 1;
     padding: 100 px;
-    
+    font-family:'Segoe UI', Tahoma, Verdana, sans-serif;
 }
 
 .jam {
-    border: 2px solid #000;
+    border: 2px solid #4d4d4d;
     padding: 10px;
     margin: 10px;
     margin-left:5px;
     margin-right:5px;
     width: calc(100vw / 3 - 40px);
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 
 .subheading {
-    border: 2px solid #000;
+    border: 2px solid #4d4d4d;
     padding: 10px;
     margin: 10px;
     margin-left:5px;
@@ -37,10 +39,11 @@
     padding-left:50px;
     padding-top:10px;
     padding-bottom:10px;
+    font-family:'Segoe UI', Tahoma, Verdana, sans-serif;
 }
 
 .user{
-    border: 1px solid #000;
+    border: 1px solid #4d4d4d;
     width: 200px;
     line-height:0px;
     text-align: center;
@@ -50,11 +53,12 @@
 
 .post{
     width:100vw;
-    border: 1px solid #000;
+    border: 1px solid #4d4d4d;
     margin-left:11px;
     margin-right:10px;
     text-align: left;
     padding-left: 20px;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 
 .comment{
@@ -69,17 +73,17 @@
 }
 
 #future{
-    background-color: red;
+    background-color: rgb(191, 3, 44);
 }
 #ongoing{
-    background-color: green;
+    background-color: rgb(123,13,30);
 }
 #past{
-    background-color: blue;
+    background-color: rgb(98, 6, 26);
 }
 #button_div{
 
-    background-color: aquamarine;
+    background-color: rgb(166,15,45);
     display: flex;
     justify-content: right;
 }
@@ -90,7 +94,7 @@
 }
 
 #info_subheading{
-    border: 2px solid #000;
+    border: 2px solid #4d4d4d;
     margin:10px
 }
 #submissions{
@@ -103,6 +107,7 @@
     max-width: fit-content;
     margin-left: auto;
     margin-right: auto;
+    font-family:'Segoe UI', Tahoma, Verdana, sans-serif;
 }
 .header_button{
     padding-left: 10px;
@@ -112,4 +117,41 @@ a:visited {
 }
 a {
     text-decoration: none;
+}
+button{
+    font-family:'Segoe UI', Tahoma, Verdana, sans-serif;
+}
+body {
+    background-color:rgb(40,43,48)
+}
+h1 {
+    color: white;
+}
+h2 {
+    color: white;
+}
+h3 {
+    color: white;
+}
+h4 {
+    color: white;
+}
+h5 {
+    color: white;
+}
+h6 {
+    color: white;
+}
+p {
+    color: white;
+}
+li {
+    color:white
+}
+label {
+    color:white
+}
+button{
+    background-color: rgb(53, 53, 53);
+    color:white;
 }
