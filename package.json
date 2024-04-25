@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
+    "build": "",
+    "serve": "node dist/index.js",
     "startdev": "nodemon server.js",
     "debug": "nodemon --inspect server.js"
   },
