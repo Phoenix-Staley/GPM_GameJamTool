@@ -25,6 +25,26 @@
     text-align:left;
 }
 
+.post{
+    width:100vw;
+    border: 1px solid #000;
+    margin-left:11px;
+    margin-right:10px;
+    text-align: left;
+    padding-left: 20px;
+}
+
+.comment{
+    margin-left:35px;
+    margin-top:30px;
+    display:inline-flex;
+}
+
+.reply_button{
+    margin-top:20px;
+    height:20px;
+}
+
 #future{
     background-color: red;
 }
