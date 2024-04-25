@@ -896,4 +896,50 @@ postRouter.post("/makePost", async function (req, res) {
     });
 });
 
+postRouter.get("/getPost", async function (req, res) {
+    if (!req.query?.title || !req.query.jam_title) {
+        res.status(400).send("No 'title' or 'jam_title' query parameter");
+        console.log("/getJam - 400 - Bad request");
+        return;
+    }
+
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getPost - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+
+    let rawJam = null;
+    let refinedJam = null;
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === req.query.jam_title) {
+            rawJam = jams[i];
+            refinedJam = (await populateGameJams([rawJam]))[0];
+        }
+    }
+
+    if (rawJam === null) {
+        res.status(404).send("Not found");
+        console.log(`/getPost - 404 - ${req.query.jam_title}`);
+        return;
+    }
+
+    for (let i = 0; i < refinedJam.posts.length; i++) {
+        let post = refinedJam.posts[i];
+        if (post.title === req.query.title) {
+            res.status(200).send(post);
+            console.log(`/getPost - 200 - ${req.query.jam_title} - ${req.query.title}`);
+            return;
+        }
+    }
+});
+
 app.listen(PORT);
