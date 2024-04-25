@@ -990,41 +990,6 @@ postRouter.get("/getPosts", async function (req, res) {
     res.status(200).send(refinedPosts);
 });
 
-// Comment routes
-let commentCounter = 0; //for commentID
-
-postRouter.post("/makeComment", async function (req, res) {
-    if (!req.query?.jam_title || !req.query?.post_title || !req.query?.comment_title || !req.query?.comment_body) {
-        res.status(400).send("Required query parameters are missing.");
-        console.log("/makeComment - 400 - Bad request");
-        return;
-    }
-
-    const newComment = {
-        commentID: "${req.query.post_title} - ${++commentCounter}",
-        body: req.query.body,
-        poster: req.session?.profile?.username
-    };
-
-    DynamoDB.updateItem({
-        TableName: "posts",
-        Key: {
-            postID: { S: req.query.postID }
-        },
-        UpdateExpression: "SET comments = list_append(comments, :comments)",
-        ExpressionAttributeValue: {
-            ":comments": { L: [{ M: newComment }] }
-        }
-    },
-    function (err) {
-        console.log("After updateItem");
-        if (err) {
-            console.error("Unable to add comment", err);
-        } else {
-            res
-            .status(201)
-            .send(newComment);
-            console.log("/makePost - 201 - ${newComment.commentID");
 postRouter.delete("/deletePost", async function (req, res) {
     if (!req.query?.title || !req.query.jam_title) {
         res.status(400).send("No 'title' or 'jam_title' query parameter");
@@ -1119,6 +1084,45 @@ postRouter.delete("/deletePost", async function (req, res) {
             res.sendStatus(200);
             console.log(`/deletePost - 200 - ${req.query.title}`);
             return;
+        }
+    });
+});
+
+// Comment routes
+let commentCounter = 0; //for commentID
+
+postRouter.post("/makeComment", async function (req, res) {
+    if (!req.query?.jam_title || !req.query?.post_title || !req.query?.comment_title || !req.query?.comment_body) {
+        res.status(400).send("Required query parameters are missing.");
+        console.log("/makeComment - 400 - Bad request");
+        return;
+    }
+
+    const newComment = {
+        commentID: "${req.query.post_title} - ${++commentCounter}",
+        body: req.query.body,
+        poster: req.session?.profile?.username
+    };
+
+    DynamoDB.updateItem({
+        TableName: "posts",
+        Key: {
+            postID: { S: req.query.postID }
+        },
+        UpdateExpression: "SET comments = list_append(comments, :comments)",
+        ExpressionAttributeValue: {
+            ":comments": { L: [{ M: newComment }] }
+        }
+    },
+    function (err) {
+        console.log("After updateItem");
+        if (err) {
+            console.error("Unable to add comment", err);
+        } else {
+            res
+            .status(201)
+            .send(newComment);
+            console.log("/makePost - 201 - ${newComment.commentID");
         }
     });
 });
