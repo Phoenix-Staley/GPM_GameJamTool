@@ -598,7 +598,7 @@ gamejamRouter.put("/updateJam", async function (req, res) {
     }).promise();
 
     for (let i = 0; i < jams.length; i++) {
-        if (jams[i].title.S === title) {
+        if (jams[i].title.S === req.query.title) {
             let rawJam = jams[i];
             let jam = {
                 gameJamID: rawJam.gameJamID,
@@ -640,7 +640,7 @@ gamejamRouter.put("/updateJam", async function (req, res) {
     console.log(`/updateJam - 404 - ${req.query.title}`);
 });
 
-gamejamRouter.put("/addOrRemoveParticipant", function (req, res) {
+gamejamRouter.put("/addOrRemoveParticipant", async function (req, res) {
     if (!req.query.title) {
         res.status(400).send("No 'title' query parameter");
         console.log("/addOrRemoveParticipant - 400 - Bad request");
@@ -653,12 +653,69 @@ gamejamRouter.put("/addOrRemoveParticipant", function (req, res) {
         return;
     }
 
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/addOrRemoveParticipant - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+
     let jam = null;
-    let participants = [];
-    for (let i = 0; i < database.gamejams.length; i++) {
-        if (database.gamejams[i].title === req.query.title) {
-            jam = database.gamejams[i];
-            participants = database.gamejams[i].participants;
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === req.query.title) {
+            let rawJam = jams[i];
+            jam = {
+                gameJamID: rawJam.gameJamID,
+                title: rawJam.title,
+                description: rawJam.description,
+                date: rawJam.date,
+                participants: rawJam.participants,
+                posts: rawJam.posts
+            };
+
+            let found = false;
+            for (let i = 0; i < jam.participants.L.length; i++) {
+                if (jam.participants.L[i].S === req.session.profile.username) {
+                    found = true;
+                    jam.participants.L.splice(i,1);
+                }
+            }
+
+            if (!found) {
+                jam.participants.L.push({ S: req.session.profile.username });
+            }
+
+            let isUpdated = false;
+            await DynamoDB.putItem({
+                TableName: "gameJams",
+                Item: jam
+             },
+             function (err) {
+                if (err) {
+                    res.status(500).send("Unable to update game jam");
+                    console.log("/addOrRemoveParticipant - 500");
+                    console.error(err);
+                    return;
+                } else {
+                    isUpdated = true;
+                }
+            }).promise();
+
+            if (!isUpdated) {
+                return;
+            }
+
+            let populatedJam = (await populateGameJams([rawJam]))[0];
+            res.status(200).send(populatedJam);
+            console.log(`/updateJam - 200 - ${populatedJam.title}`);
+            return;
         }
     }
 
@@ -667,20 +724,6 @@ gamejamRouter.put("/addOrRemoveParticipant", function (req, res) {
         console.log(`/addOrRemoveParticipant - 404 - ${req.query.title}`);
         return;
     }
-
-    const newParticipant = req.session.profile.username;
-    for (let i = 0; i < participants.length; i++) {
-        if (participants[i] === newParticipant) {
-            jam.participants.splice(i,1);
-            res.status(200).send(jam);
-            console.log(`/addOrRemoveParticipant - 200 - Remove ${req.session.profile.username}`);
-            return;
-        }
-    }
-
-    jam.participants.push(newParticipant);
-    res.status(200).send(jam);
-    console.log(`/addOrRemoveParticipant - 200 - Add ${req.session.profile.username}`);
 });
 
 gamejamRouter.delete("/deleteJam", function (req, res) {
