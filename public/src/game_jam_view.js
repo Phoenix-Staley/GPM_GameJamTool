@@ -4,7 +4,8 @@
 
 // called when the page is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  update_page(test_jam);
+  update_page(get_active_jam());
+  //console.log(document.cookie.game_jam);
 });
 
 // initializations
@@ -102,6 +103,22 @@ const description_elem = document.getElementById('description');
 const participants_div = document.getElementById('participants_div');
 // div to place posts under
 const info_subeading = document.getElementById('info_subheading');
+
+// parses the cookie to get the selected gamejam
+function get_active_jam(){
+
+  const cookies = document.cookie.split('; ');
+  let game_jam = null;
+
+  cookies.forEach(cookie => {
+      const [name, value] = cookie.split('=');
+      if (name === 'game_jam') {
+          game_jam = JSON.parse(decodeURIComponent(value));
+      }
+  });
+
+  return game_jam;
+}
 
 // updates the page with the relavent details
 function update_page(game_jam) {
