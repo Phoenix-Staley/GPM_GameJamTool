@@ -637,7 +637,7 @@ postRouter.post("/makePost", async function (req, res) {
             title: { S: newPost.title },
             content: { S: newPost.content },
             date: { S: newPost.date },
-            // comments: { L: comments }
+            comments: { L: comments }
         }
      },
      function (err) {
