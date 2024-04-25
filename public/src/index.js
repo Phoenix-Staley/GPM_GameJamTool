@@ -251,5 +251,5 @@ function display_searched_users(){
         insertAfter(username_input, user_div);
         }
     });
-}
+  }
 }
