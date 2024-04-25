@@ -1025,6 +1025,100 @@ postRouter.post("/makeComment", async function (req, res) {
             .status(201)
             .send(newComment);
             console.log("/makePost - 201 - ${newComment.commentID");
+postRouter.delete("/deletePost", async function (req, res) {
+    if (!req.query?.title || !req.query.jam_title) {
+        res.status(400).send("No 'title' or 'jam_title' query parameter");
+        console.log("/deletPost - 400 - Bad request");
+        return;
+    }
+
+    // Reject request if the user isn't logged in,
+    //  or they're not authorized to delete game jams
+    if (!req?.session?.profile || !req.session.profile.isAdmin) {
+        res.status(403).send("Not authorized");
+        console.log("/deletPost - 403 - Not authorized");
+        return;
+    }
+
+    let posts = [];
+    await DynamoDB.scan({
+        TableName: "posts"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find game jams", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            posts = data.Items;
+        }
+    }).promise();
+
+    for (let i = 0; i < posts.length; i++) {
+        if (posts[i].title.S === req.query.title) {
+            const rawPost = posts[i];
+            await DynamoDB.deleteItem({
+                TableName: "posts",
+                Key: {
+                    postID: rawPost.postID
+                }
+             },
+             function (err) {
+                if (err) {
+                    console.error("Unable to delete game jam", err);
+                    res.sendStatus(500);
+                    return;
+                } else {
+                    return;
+                }
+            }).promise();
+        }
+    }
+
+    let jams = [];
+    let jam = null;
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getJam - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+    
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === req.query.jam_title) {
+            for (let j = 0; j < jams[i].posts.L.length; j++) {
+                if (jams[i].posts.L[j].title === req.query.title) {
+                    jams[i].posts.L.splice(i,1);
+                }
+            }
+            jam = jams[i];
+        }
+    }
+    
+    if (jam === null) {
+        return;
+    }
+
+    DynamoDB.putItem({
+        TableName: "gameJams",
+        Item: jam
+     },
+     function (err) {
+        if (err) {
+            res.status(500).send("Unable to update game jam");
+            console.log("/updateJam - 500");
+            console.error(err);
+            return;
+        } else {
+            res.sendStatus(200);
+            console.log(`/deletePost - 200 - ${req.query.title}`);
+            return;
         }
     });
 });
