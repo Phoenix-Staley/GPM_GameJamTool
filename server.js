@@ -566,7 +566,7 @@ gamejamRouter.get("/getJams", async function (req, res) {
     console.log(`/getJams - 200`);
 });
 
-gamejamRouter.put("/updateJam", function (req, res) {
+gamejamRouter.put("/updateJam", async function (req, res) {
     if (Object.keys(req.query).length < 2 || !req.query?.title) {
         res
          .status(400)
@@ -575,24 +575,63 @@ gamejamRouter.put("/updateJam", function (req, res) {
         return;
     }
     
-    const title = req.query.title;
-
     if (!req?.session?.profile || !req.session.profile.isAdmin) {
         res.status(403).send("Not authorized");
         console.log("/updateJam - 403 - Not authorized");
         return;
     }
 
-    for (let i = 0; i < database.gamejams.length; i++) {
-        if (database.gamejams[i].title === title) {
-            let jam = database.gamejams[i];
+    const title = req.query.title;
 
-            jam.description = req.query.description ? req.query.description : jam.description;
-            jam.title = req.query.title ? req.query.title : jam.title;
-            jam.date = req.query.date ? req.query.date : jam.date;
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/updateJam - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
 
-            res.status(200).send(jam);
-            console.log(`/updateJam - 200 - ${jam.title}`);
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === title) {
+            let rawJam = jams[i];
+            let jam = {
+                gameJamID: rawJam.gameJamID,
+                title: req.query.title ? { S: req.query.title } : rawJam.title,
+                description: req.query.description ? { S: req.query.description } : rawJam.description,
+                date: req.query.date ? { S: req.query.date } : rawJam.date,
+                participants: rawJam.participants,
+                posts: rawJam.posts
+            };
+
+            let isUpdated = false;
+            await DynamoDB.putItem({
+                TableName: "gameJams",
+                Item: jam
+             },
+             function (err) {
+                if (err) {
+                    res.status(500).send("Unable to update game jam");
+                    console.log("/updateJam - 500");
+                    console.error(err);
+                    return;
+                } else {
+                    isUpdated = true;
+                }
+            }).promise();
+
+            if (!isUpdated) {
+                return;
+            }
+
+            let populatedJam = (await populateGameJams([rawJam]))[0];
+            res.status(200).send(populatedJam);
+            console.log(`/updateJam - 200 - ${populatedJam.title}`);
             return;
         }
     }
