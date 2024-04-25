@@ -457,6 +457,56 @@ gamejamRouter.post("/postJam", async function (req, res) {
     });
 });
 
+async function populateGameJams(rawJams) {
+    let result = [];
+
+    let posts = [];
+    await DynamoDB.scan({
+        TableName: "posts"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getJam - 500`);
+            console.error(err);
+            return;
+        } else {
+            posts = data.Items;
+        }
+    }).promise();
+
+    for (let i = 0; i < rawJams.length; i++) {
+        const rawJam = rawJams[i];
+        refinedJam = {
+            title: rawJam.title.S,
+            description: rawJam.description.S,
+            date: rawJam.date.S,
+            participants: [],
+            posts: []
+        }
+
+        for (let i = 0; i < rawJam.posts.L.length; i++) {
+            for (let j = 0; j < posts.length; j++) {
+                if (posts[j].postID.S === rawJam.posts.L[i].S) {
+                    const post = posts[j];
+                    refinedJam.posts.push({
+                        title: post.title.S,
+                        date: post.date.S,
+                        content: post.content.S
+                    });
+                }
+            }
+        }
+
+        for (let i = 0; i < rawJam.participants.L.length; i++) {
+            refinedJam.participants.push(rawJam.participants.L[i].S);
+        }
+
+        result.push(refinedJam);
+    }
+
+    return result;
+}
+
 gamejamRouter.get("/getJam", async function (req, res) {
     if (!req.query.title) {
         res.status(400).send("No 'title' query parameter");
@@ -483,47 +533,10 @@ gamejamRouter.get("/getJam", async function (req, res) {
     for (let i = 0; i < jams.length; i++) {
         if (jams[i].title.S === req.query.title) {
             rawJam = jams[i];
-            refinedJam = {
-                title: rawJam.title.S,
-                description: rawJam.description.S,
-                date: rawJam.date.S,
-                participants: [],
-                posts: []
-            }
+            refinedJam = await populateGameJams([rawJam]);
 
-            let posts = [];
-            await DynamoDB.scan({
-                TableName: "posts"
-            }, function (err, data) {
-                if (err) {
-                    res.sendStatus(500);
-                    console.log(`/getJam - 500`);
-                    console.error(err);
-                    return;
-                } else {
-                    posts = data.Items;
-                }
-            }).promise();
-
-            for (let i = 0; i < rawJam.posts.L.length; i++) {
-                for (let j = 0; j < posts.length; j++) {
-                    if (posts[j].postID.S === rawJam.posts.L[i].S) {
-                        const post = posts[j];
-                        refinedJam.posts.push({
-                            title: post.title.S,
-                            date: post.date.S,
-                            content: post.content.S
-                        });
-                    }
-                }
-            }
-
-            for (let i = 0; i < rawJam.participants.L.length; i++) {
-                refinedJam.participants.push(rawJam.participants.L[i].S);
-            }
-
-            res.status(200).send(refinedJam);
-            console.log(`/getJam - 200 - ${jams[i].title}`);
+            res.status(200).send(refinedJam[0]);
+            console.log(`/getJam - 200 - ${refinedJam[0].title}`);
             return;
         }
     }
@@ -547,52 +560,7 @@ gamejamRouter.get("/getJams", async function (req, res) {
         }
     }).promise();
 
-    let posts = [];
-    await DynamoDB.scan({
-        TableName: "posts"
-    }, function (err, data) {
-        if (err) {
-            res.sendStatus(500);
-            console.log(`/getJam - 500`);
-            console.error(err);
-            return;
-        } else {
-            posts = data.Items;
-        }
-    }).promise();
-
-    let rawJam = {};
-    let refinedJam = {};
-    let refinedJams = []
-    for (let i = 0; i < jams.length; i++) {
-        rawJam = jams[i];
-        refinedJam = {
-            title: rawJam.title.S,
-            description: rawJam.description.S,
-            date: rawJam.date.S,
-            participants: [],
-            posts: []
-        }
-
-        for (let i = 0; i < rawJam.posts.L.length; i++) {
-            for (let j = 0; j < posts.length; j++) {
-                if (posts[j].postID.S === rawJam.posts.L[i].S) {
-                    const post = posts[j];
-                    refinedJam.posts.push({
-                        title: post.title.S,
-                        date: post.date.S,
-                        content: post.content.S
-                    });
-                }
-            }
-        }
-
-        for (let i = 0; i < rawJam.participants.L.length; i++) {
-            refinedJam.participants.push(rawJam.participants.L[i].S);
-        }
-
-        refinedJams.push(refinedJam);
-    }
+    let refinedJams = await populateGameJams(jams);
 
     res.status(200).send(refinedJams);
     console.log(`/getJams - 200`);
