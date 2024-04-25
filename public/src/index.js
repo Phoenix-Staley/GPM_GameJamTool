@@ -114,7 +114,6 @@ async function set_all_game_jams(){
 function draw_all_game_jams(){
 
   // creates a game jam div for each jam
-  // TODO: add logic for putting them into correct category
   all_game_jams.forEach(function(jam){
 
     let jam_div = document.createElement('div');
