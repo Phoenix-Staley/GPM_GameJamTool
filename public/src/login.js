@@ -40,13 +40,15 @@ password_input.addEventListener('input', validate_input_fields);
 async function login(){
 
   const response = await fetch(
-    'http://localhost:3000/signIn?' + new URLSearchParams({
+    'https://gamejammanager-gpmj-0bab434416a3.herokuapp.com/signIn?' + new URLSearchParams({
       username: username_input.value, 
       password_encoded: password_input.value
       }),
       {method: 'POST'});
   
   let status = response.status; // 200 if successful
+
+  console.log(status);
 /*
   if (status === 200){
     window.location.assign('index.html');

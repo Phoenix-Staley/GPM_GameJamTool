@@ -2,6 +2,15 @@
 //import fetch from '../node_modules/cross-fetch/';
 //import fetch from 'cross-fetch';
 
+// date/time format
+const date_options = { 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric', 
+  hour: 'numeric', 
+  minute: 'numeric',
+  hour12: false // use military time
+};
 
 // const bcrypt = require('bcrypt'); // don't worry about it for now
 
@@ -11,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
   //set_all_game_jams();
   set_all_game_jams_test();
   draw_all_game_jams();
-  console.log(document.cookie);
 });
 
 // initializations
@@ -26,7 +34,7 @@ const past_div = document.getElementById('past');
 async function createJamTest(){ // user must be logged in to make req
 
   const response = await fetch(
-    'http://localhost:3000/postJam?' + new URLSearchParams({
+    'https://gamejammanager-gpmj-0bab434416a3.herokuapp.com/postJam?' + new URLSearchParams({
       title: 'Test Jam',
       date: 'April 23',
       description: 'test description'
@@ -61,16 +69,26 @@ jam = {
         posts: [postObject1, postObject2]
     }
 */
+
+/* date/time format
+const v = new Date('July 20, 2069 at 20:17');
+console.log(v.getTime());
+
+converts from ms to string
+console.log(date.toLocaleDateString('en-US', date_options));
+*/
+
 // creates a couple hardcoded jams for testing
 function set_all_game_jams_test(){
-  for (let i = 0; i < 5; i++){
+  for (let i = 1; i <= 5; i++){
     all_game_jams.push({
       title: 'jam ' + i,
-      date: 'may ' + i + 'th, 2024',
+      date: 'May ' + i + ', 2024 ' + i + ':00',
       description: 'jam ' + i + ' description',
       particpants: ['user 1', 'user 2'],
       post: []
     })
+    console.log(all_game_jams[i - 1].date);
   }
 }
 
@@ -78,7 +96,7 @@ function set_all_game_jams_test(){
 async function set_all_game_jams(){
 
   const response = await fetch(
-  'http://localhost:3000/getJams?', 
+  'https://gamejammanager-gpmj-0bab434416a3.herokuapp.com/getJams?', 
   {method: 'GET'}
   );
   
@@ -117,7 +135,17 @@ function draw_all_game_jams(){
     a_tag.appendChild(title);
     insertAfter(title, begin_time);
     insertAfter(begin_time, p_count);
-    insertAfter(future_div, jam_div);
+
+    // check date of jam to determine category
+    const current_date = new Date();
+    const jam_date = new Date(all_game_jams[i].date);
+    console.log(jam_date);
+    if (jam_date < current_date){ // past jam
+      insertAfter(past_div, jam_div);
+    }
+    else if (jam_date > current_date){
+      insertAfter(future_div, jam_div);
+    }
   }
 }
 
