@@ -115,20 +115,21 @@ function draw_all_game_jams(){
 
   // creates a game jam div for each jam
   // TODO: add logic for putting them into correct category
-  for (let i = all_game_jams.length - 1; i >= 0; i--){
+  all_game_jams.forEach(function(jam){
+
     let jam_div = document.createElement('div');
     jam_div.classList.add('jam');
     let a_tag = document.createElement('a');
     //a_tag.setAttribute('href', 'game_jam_view.html');
     a_tag.addEventListener('click', function() {
-      test_jam_click(all_game_jams[i])});
+      test_jam_click(jam)});
     let title = document.createElement('h2');
     title.classList.add('jam_name');
-    title.textContent = all_game_jams[i].title;
+    title.textContent = jam.title;
     let begin_time = document.createElement('p');
-    begin_time.textContent = all_game_jams[i].date;
+    begin_time.textContent = jam.date;
     let p_count = document.createElement('p');
-    p_count.textContent = all_game_jams[i].particpants.length + ' participants';
+    p_count.textContent = jam.particpants.length + ' participants';
   
     jam_div.appendChild(a_tag);
     a_tag.appendChild(title);
@@ -137,14 +138,14 @@ function draw_all_game_jams(){
 
     // check date of jam to determine category
     const current_date = new Date();
-    const jam_date = new Date(all_game_jams[i].date);
+    const jam_date = new Date(jam.date);
     if (jam_date < current_date){ // past jam
       insertAfter(past_div, jam_div);
     }
     else if (jam_date > current_date){
       insertAfter(future_div, jam_div);
     }
-  }
+  })
 }
 
 function insertAfter(ref, _new) {
