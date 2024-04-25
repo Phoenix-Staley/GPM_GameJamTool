@@ -119,9 +119,15 @@ function fill_users(game_jam){
   game_jam.participants.forEach(function(user){
     let username = document.createElement('h3');
     username.textContent = user;
+
+    let a_tag = document.createElement('a');
+    a_tag.setAttribute('href', 'profile.html');
+
     let user_div = document.createElement('div');
     user_div.classList.add('user');
-    user_div.appendChild(username);
+
+    a_tag.appendChild(username);
+    user_div.appendChild(a_tag);
     insertAfter(participants_div, user_div);
   });
 }
