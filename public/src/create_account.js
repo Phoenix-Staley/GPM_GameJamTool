@@ -44,7 +44,7 @@ async function create_account(){
 
   clear_output_div();
 
-  const response = await fetch('http://localhost:3000/signUp?' + 
+  const response = await fetch('https://gamejammanager-gpmj-0bab434416a3.herokuapp.com/signUp?' + 
     new URLSearchParams({username: username_input.value, name: 'John Doe', password_encoded: password_input.value}), {method: 'POST'});
   
   let status = response.status; // 201 if successfull, 400 if user already found

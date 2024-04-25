@@ -1,4 +1,4 @@
-const fetch = require('cross-fetch');
+//const fetch = require('cross-fetch');
 //import fetch from '../node_modules/cross-fetch';
 //import fetch from 'cross-fetch';
 
@@ -40,16 +40,17 @@ password_input.addEventListener('input', validate_input_fields);
 async function login(){
 
   const response = await fetch(
-    'http://localhost:3000/signIn?' + new URLSearchParams({
+    'https://gamejammanager-gpmj-0bab434416a3.herokuapp.com/signIn?' + new URLSearchParams({
       username: username_input.value, 
       password_encoded: password_input.value
       }),
       {method: 'POST'});
   
   let status = response.status; // 200 if successful
-/*
-  if (status === 200){
+
+  console.log(status);
+
+  if (status === 203){ // success, return to home page
     window.location.assign('index.html');
   }
-  */
 }
