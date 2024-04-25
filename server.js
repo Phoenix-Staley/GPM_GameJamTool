@@ -896,4 +896,235 @@ postRouter.post("/makePost", async function (req, res) {
     });
 });
 
+postRouter.get("/getPost", async function (req, res) {
+    if (!req.query?.title || !req.query.jam_title) {
+        res.status(400).send("No 'title' or 'jam_title' query parameter");
+        console.log("/getJam - 400 - Bad request");
+        return;
+    }
+
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getPost - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+
+    let rawJam = null;
+    let refinedJam = null;
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === req.query.jam_title) {
+            rawJam = jams[i];
+            refinedJam = (await populateGameJams([rawJam]))[0];
+        }
+    }
+
+    if (rawJam === null) {
+        res.status(404).send("Not found");
+        console.log(`/getPost - 404 - ${req.query.jam_title}`);
+        return;
+    }
+
+    for (let i = 0; i < refinedJam.posts.length; i++) {
+        let post = refinedJam.posts[i];
+        if (post.title === req.query.title) {
+            res.status(200).send(post);
+            console.log(`/getPost - 200 - ${req.query.jam_title} - ${req.query.title}`);
+            return;
+        }
+    }
+});
+
+postRouter.get("/getPosts", async function (req, res) {
+    if (!req.query?.jam_title) {
+        res.status(400).send("No 'title' or 'jam_title' query parameter");
+        console.log("/getJam - 400 - Bad request");
+        return;
+    }
+
+    let refinedPosts = [];
+    let posts = null;
+    await DynamoDB.scan({
+        TableName: "posts"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getPost - 500`);
+            console.error(err);
+            return;
+        } else {
+            posts = data.Items;
+        }
+    }).promise();
+
+    if (posts === null) {
+        return;
+    }
+
+    for (let i = 0; i < posts.length; i++) {
+        let post = posts[i];
+        if (post.postID.S === (post.title.S + " - " + req.query.jam_title)) {
+            refinedPosts.push({
+                title: post.title.S,
+                date: post.date.S,
+                content: post.content.S,
+                comments: []
+            });
+            for (let j = 0; j < post.comments.L.length; j++) {
+                let comment = post.comments.L[j].M;
+                refinedPosts[-1].comments.push({
+                    poster: comment.poster,
+                    content: comment.content
+                });
+            }
+        }
+    }
+
+    res.status(200).send(refinedPosts);
+});
+
+postRouter.delete("/deletePost", async function (req, res) {
+    if (!req.query?.title || !req.query.jam_title) {
+        res.status(400).send("No 'title' or 'jam_title' query parameter");
+        console.log("/deletPost - 400 - Bad request");
+        return;
+    }
+
+    // Reject request if the user isn't logged in,
+    //  or they're not authorized to delete game jams
+    if (!req?.session?.profile || !req.session.profile.isAdmin) {
+        res.status(403).send("Not authorized");
+        console.log("/deletPost - 403 - Not authorized");
+        return;
+    }
+
+    let posts = [];
+    await DynamoDB.scan({
+        TableName: "posts"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find game jams", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            posts = data.Items;
+        }
+    }).promise();
+
+    for (let i = 0; i < posts.length; i++) {
+        if (posts[i].title.S === req.query.title) {
+            const rawPost = posts[i];
+            await DynamoDB.deleteItem({
+                TableName: "posts",
+                Key: {
+                    postID: rawPost.postID
+                }
+             },
+             function (err) {
+                if (err) {
+                    console.error("Unable to delete game jam", err);
+                    res.sendStatus(500);
+                    return;
+                } else {
+                    return;
+                }
+            }).promise();
+        }
+    }
+
+    let jams = [];
+    let jam = null;
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getJam - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+    
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === req.query.jam_title) {
+            for (let j = 0; j < jams[i].posts.L.length; j++) {
+                if (jams[i].posts.L[j].title === req.query.title) {
+                    jams[i].posts.L.splice(i,1);
+                }
+            }
+            jam = jams[i];
+        }
+    }
+    
+    if (jam === null) {
+        return;
+    }
+
+    DynamoDB.putItem({
+        TableName: "gameJams",
+        Item: jam
+     },
+     function (err) {
+        if (err) {
+            res.status(500).send("Unable to update game jam");
+            console.log("/updateJam - 500");
+            console.error(err);
+            return;
+        } else {
+            res.sendStatus(200);
+            console.log(`/deletePost - 200 - ${req.query.title}`);
+            return;
+        }
+    });
+});
+
+// Comment routes
+let commentCounter = 0; //for commentID
+
+postRouter.post("/makeComment", async function (req, res) {
+    if (!req.query?.jam_title || !req.query?.post_title || !req.query?.comment_title || !req.query?.comment_body) {
+        res.status(400).send("Required query parameters are missing.");
+        console.log("/makeComment - 400 - Bad request");
+        return;
+    }
+
+    const newComment = {
+        commentID: "${req.query.post_title} - ${++commentCounter}",
+        body: req.query.body,
+        poster: req.session?.profile?.username
+    };
+
+    DynamoDB.updateItem({
+        TableName: "posts",
+        Key: {
+            postID: { S: req.query.postID }
+        },
+        UpdateExpression: "SET comments = list_append(comments, :comments)",
+        ExpressionAttributeValue: {
+            ":comments": { L: [{ M: newComment }] }
+        }
+    },
+    function (err) {
+        console.log("After updateItem");
+        if (err) {
+            console.error("Unable to add comment", err);
+        } else {
+            res
+            .status(201)
+            .send(newComment);
+            console.log("/makePost - 201 - ${newComment.commentID");
+        }
+    });
+});
+
 app.listen(PORT);
