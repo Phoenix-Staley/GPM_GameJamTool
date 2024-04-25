@@ -532,14 +532,70 @@ gamejamRouter.get("/getJam", async function (req, res) {
     console.log(`/getJam - 404 - ${req.query.title}`);
 });
 
-gamejamRouter.get("/getJams", function (req, res) {
-    if (database.gamejams.length === 0) {
-        res.status(404).send([]);
-        console.log("/getJams - 404 - No jams");
-    } else {
-        res.status(200).send(database.gamejams);
-        console.log(`/getJams - 200`);
+gamejamRouter.get("/getJams", async function (req, res) {
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getJam - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+
+    let posts = [];
+    await DynamoDB.scan({
+        TableName: "posts"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getJam - 500`);
+            console.error(err);
+            return;
+        } else {
+            posts = data.Items;
+        }
+    }).promise();
+
+    let rawJam = {};
+    let refinedJam = {};
+    let refinedJams = []
+    for (let i = 0; i < jams.length; i++) {
+        rawJam = jams[i];
+        refinedJam = {
+            title: rawJam.title.S,
+            description: rawJam.description.S,
+            date: rawJam.date.S,
+            participants: [],
+            posts: []
+        }
+
+        for (let i = 0; i < rawJam.posts.L.length; i++) {
+            for (let j = 0; j < posts.length; j++) {
+                if (posts[j].postID.S === rawJam.posts.L[i].S) {
+                    const post = posts[j];
+                    refinedJam.posts.push({
+                        title: post.title.S,
+                        date: post.date.S,
+                        content: post.content.S
+                    });
+                }
+            }
+        }
+
+        for (let i = 0; i < rawJam.participants.L.length; i++) {
+            refinedJam.participants.push(rawJam.participants.L[i].S);
+        }
+
+        refinedJams.push(refinedJam);
     }
+
+    res.status(200).send(refinedJams);
+    console.log(`/getJams - 200`);
 });
 
 gamejamRouter.put("/updateJam", function (req, res) {
