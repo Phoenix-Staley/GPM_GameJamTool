@@ -392,7 +392,7 @@ userRouter.delete("/deleteUser", async function (req, res) {
 });
 
 // Game Jam Related Routes
-gamejamRouter.post("/postJam", function (req, res) {
+gamejamRouter.post("/postJam", async function (req, res) {
     if (!req.query.title || !req.query.date || !req.query.description) {
         res.status(400).send("No 'title', 'date', or 'description' query parameters.");
         console.log("/postJam - 400 - Bad request");
@@ -405,9 +405,23 @@ gamejamRouter.post("/postJam", function (req, res) {
         return;
     }
 
-    for (let i = 0; i < database.gamejams.length; i++) {
-        const jam = database.gamejams[i];
-        if (jam.title === req.query.title) {
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/postJam - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+
+    for (let i = 0; i < jams.length; i++) {
+        const jam = jams[i];
+        if (jam.title.S === req.query.title) {
             res.status(400).send("Title taken");
             console.log("/postJam - 400 - Title taken");
             return;
@@ -420,12 +434,27 @@ gamejamRouter.post("/postJam", function (req, res) {
         posts: []
     };
 
-    database.gamejams.push(jam);
-    
-    res
-     .status(201)
-     .send(jam);
-    console.log(`/postJam - 201 - ${jam.title}`);
+    DynamoDB.putItem({
+        TableName: "gameJams",
+        Item: {
+            gameJamID: { S: jam.title },
+            title: { S: jam.title },
+            description: { S: jam.description },
+            date: { S: jam.date },
+            participants: { L: [] },
+            posts: { L: [] }
+        }
+     },
+     function (err) {
+        if (err) {
+            console.error("Unable to add user", err);
+        } else {
+            res
+             .status(201)
+             .send(jam);
+            console.log(`/postJam - 201 - ${jam.title}`);
+        }
+    });
 });
 
 gamejamRouter.get("/getJam", function (req, res) {
