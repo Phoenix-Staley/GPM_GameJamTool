@@ -19,16 +19,18 @@ document.addEventListener('DOMContentLoaded', function() {
   //createJamTest();
   //set_all_game_jams();
   set_all_game_jams_test();
+  set_all_users();
   draw_all_game_jams();
 });
 
 // initializations
 let all_game_jams = [];
+let all_users = [];
 const future_div = document.getElementById('future');
 const ongoing_div = document.getElementById('ongoing');
 const past_div = document.getElementById('past');
-
-
+const username_input = document.getElementById('search_name');
+username_input.addEventListener('input', display_searched_users);
 
 // creates a jam for testing purposes
 async function createJamTest(){ // user must be logged in to make req
@@ -46,7 +48,8 @@ async function createJamTest(){ // user must be logged in to make req
     console.log('inside test ' + status);
 }
 
-/* post object
+/* 
+post object
 {
  title: { S: "someString" },
  content: { S: "someString },
@@ -57,25 +60,31 @@ async function createJamTest(){ // user must be logged in to make req
        }]
 }
 
-*/
-
-
-/* jam object
+jam object
 jam = {
         title: "title",
         date: "May 48th, 2098",
         description: "someString",
         participants: ["username1", "username2"],
         posts: [postObject1, postObject2]
-    }
-*/
+}
 
-/* date/time format
+date/time format
 const v = new Date('July 20, 2069 at 20:17');
 console.log(v.getTime());
 
 converts from ms to string
 console.log(date.toLocaleDateString('en-US', date_options));
+
+profile object
+{
+    username: "string",
+    name: "string",
+    isAdmin: false,
+    bio: "string"
+}
+
+
 */
 
 // creates a couple hardcoded jams for testing
@@ -111,24 +120,41 @@ async function set_all_game_jams(){
   }
 }
 
+async function set_all_users(){
+  const response = await fetch(
+    'https://gamejammanager-gpmj-0bab434416a3.herokuapp.com/getUsers?', 
+    {method: 'GET'}
+    );
+
+  let status = response.status;
+  
+  if (status === 200){
+    all_users = await response.json();
+  }
+}
+
 function draw_all_game_jams(){
 
   // creates a game jam div for each jam
-  // TODO: add logic for putting them into correct category
-  for (let i = all_game_jams.length - 1; i >= 0; i--){
+  all_game_jams.forEach(function(jam){
+
     let jam_div = document.createElement('div');
     jam_div.classList.add('jam');
+
     let a_tag = document.createElement('a');
-    //a_tag.setAttribute('href', 'game_jam_view.html');
+    a_tag.setAttribute('href', 'game_jam_view.html');
     a_tag.addEventListener('click', function() {
-      test_jam_click(all_game_jams[i])});
+      test_jam_click(jam)});
+
     let title = document.createElement('h2');
     title.classList.add('jam_name');
-    title.textContent = all_game_jams[i].title;
+    title.textContent = jam.title;
+
     let begin_time = document.createElement('p');
-    begin_time.textContent = all_game_jams[i].date;
+    begin_time.textContent = jam.date;
+
     let p_count = document.createElement('p');
-    p_count.textContent = all_game_jams[i].particpants.length + ' participants';
+    p_count.textContent = jam.particpants.length + ' participants';
   
     jam_div.appendChild(a_tag);
     a_tag.appendChild(title);
@@ -137,14 +163,14 @@ function draw_all_game_jams(){
 
     // check date of jam to determine category
     const current_date = new Date();
-    const jam_date = new Date(all_game_jams[i].date);
+    const jam_date = new Date(jam.date);
     if (jam_date < current_date){ // past jam
       insertAfter(past_div, jam_div);
     }
     else if (jam_date > current_date){
       insertAfter(future_div, jam_div);
     }
-  }
+  })
 }
 
 function insertAfter(ref, _new) {
@@ -157,4 +183,31 @@ function test_jam_click(game_jam){
   document.dispatchEvent(event);
 
   window.location.href = 'game_jam_view.html';
+}
+
+// fills the user div with all participants
+function display_searched_users(){
+
+  // remove all displayed searched users on empty query
+  if (username_input.value === ''){ 
+    document.querySelectorAll('.user').forEach(e => e.remove());
+  }
+  else{ // valid search param
+    all_users.forEach(function(user){
+      if (user.username.includes(username_input.value)){
+        let username = document.createElement('h3');
+        username.textContent = user.username;
+
+        let a_tag = document.createElement('a');
+        a_tag.setAttribute('href', 'profile.html');
+
+        let user_div = document.createElement('div');
+        user_div.classList.add('user');
+
+        a_tag.appendChild(username);
+        user_div.appendChild(a_tag);
+        insertAfter(username_input, user_div);
+        }
+    });
+}
 }

@@ -15,7 +15,7 @@
         </a>
     </div>
     
-    <h1 class="title">Martin Hundrup</h1> <!-- Username -->
+    <h1 class="title" id="profile_title">Martin Hundrup</h1> <!-- Username -->
 
     <div class="title">
         <div class="container"> <!-- Bio, edit username/name -->
@@ -25,7 +25,7 @@
                 <label for="edit-name">Edit name:</label><br>
                 <input type="text" id="edit-name" name="edit-name">
             </form>
-            <p class="flex">This is a generic bio here. It is a bunch of filler text.</p>
+            <p class="flex" id="bio">This is a generic bio here. It is a bunch of filler text.</p>
         </div>
 
         <div class="container"> <!-- 2nd line containing skills & game jams -->
@@ -88,4 +88,8 @@
         </a>
     </div>
 </body>
+
+<!-- reference to scripts go at end -->
+<script type="module" src="src/profile.js"></script>
+
 </html>

@@ -23,7 +23,7 @@
 
     <main> <!-- contents of central part of webpage -->
 
-        <h1 class="title">Game Jam Test Title</h1>
+        <h1 id="title" class="title">Game Jam Test Title</h1>
 
         <div class="container"> <!-- contains the time bars -->
 
@@ -43,41 +43,18 @@
         </div>
 
         <div class="title"> <!-- contains the desciption -->
-            <p>This is the game jam description</p>
+            <p id="description">This is the game jam description</p>
         </div>
 
         <div class="container"> <!-- contains the the links to participants and submissions -->
             <div class="flex">
-                <div class="flex" id="info_subheading"> <!-- future jams header -->
+                <div class="flex" id="participants_div"> <!-- future jams header -->
                     <h2 class="title">Participants</h2>
                 </div>
-
-                <!-- user list -->
-                <div class="user">
-                    <a href="">
-                        <h3>User1</h3>
-                    </a>
-                </div>
-                <div class="user">
-                    <a href="">
-                        <h3>User2</h3>
-                    </a>
-                </div>
-                <div class="user">
-                    <a href="">
-                        <h3>User3</h3>
-                    </a>
-                </div>
-                <div class="user">
-                    <a href="">
-                        <h3>User4</h3>
-                    </a>
-                </div>
-
             </div>
 
             <div class="flex">
-                <div class="flex" id="info_subheading"> <!-- future jams header -->
+                <div class="flex" id="submissions_div"> <!-- future jams header -->
                     <h2 class="title">Submissions</h2>
                 </div>
 
@@ -92,97 +69,9 @@
             <div class="flex" id="info_subheading"> <!-- Posts Header -->
                 <h2 class="title">Posts</h2>
             </div>
-            
-            <div class="container"> <!-- contains each post -->
-                <div class="post">
-                    <h2>This is a post</h2>
-                    <a href=""></a><h4>posted by User1</h4></a>
-
-                    <div class="container"> <!-- contains each comment -->
-                        <div class="comment">
-                            <p>this is a comment</p>
-                            <a href=""><h4> - User2</h4></a>
-                            <button class="reply_button">Reply</button>
-
-                            <!-- replies are structured by placing a comment container inside of another comment container-->
-                            <div class="container">
-                                <div class="comment">
-                                    <p>this is a reply to that comment</p>
-                                    <a href=""><h4> - User3</h4></a>
-                                    <button class="reply_button">Reply</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="container">
-                        <div class="comment">
-                            <p>this is also a comment</p>
-                            <a href=""><h4> - User4</h4></a>
-                            <button class="reply_button">Reply</button>
-                        </div>
-                    </div>
-
-                    
-                <!-- reply to post-->
-                <div class="item_details">
-                    <form>
-                        <input type="text"><br>
-                        <button>Reply</button>
-                    </form>
-                </div>
-                </div>
-            </div>
-            
-            <div class="container"> <!-- contains each post -->
-                <div class="post">
-                    <h2>This is a post</h2>
-                    <a href=""></a><h4>posted by User1</h4></a>
-
-                    <div class="container"> <!-- contains each comment -->
-                        <div class="comment">
-                            <p>this is a comment</p>
-                            <a href=""><h4> - User2</h4></a>
-                            <button class="reply_button">Reply</button>
-
-                            <!-- replies are structured by placing a comment container inside of another comment container-->
-                            <div class="container">
-                                <div class="comment">
-                                    <p>this is a reply to that comment</p>
-                                    <a href=""><h4> - User3</h4></a>
-                                    <button class="reply_button">Reply</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="container">
-                        <div class="comment">
-                            <p>this is also a comment</p>
-                            <a href=""><h4> - User4</h4></a>
-                            <button class="reply_button">Reply</button>
-                        </div>
-                    </div>
-
-                    
-                <!-- reply to post-->
-                <div class="item_details">
-                    <form>
-                        <input type="text"><br>
-                        <button>Reply</button>
-                    </form>
-                </div>
-                </div>
-            </div>
-
-            
-    
         </div>
 
 
-
-            
-        
     </main>
 
     <footer> <!-- contents at bottom of webpage -->
