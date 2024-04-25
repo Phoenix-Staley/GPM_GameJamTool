@@ -726,7 +726,7 @@ gamejamRouter.put("/addOrRemoveParticipant", async function (req, res) {
     }
 });
 
-gamejamRouter.delete("/deleteJam", function (req, res) {
+gamejamRouter.delete("/deleteJam", async function (req, res) {
     const jam = req.query;
 
     if (!jam || !jam.title) {
@@ -743,11 +743,44 @@ gamejamRouter.delete("/deleteJam", function (req, res) {
         return;
     }
 
-    for (let i = 0; i < database.gamejams.length; i++) {
-        if (database.gamejams[i].title === jam.title) {
-            database.gamejams.splice(i,1);
-            res.sendStatus(200);
-            console.log(`/deletJam - 200 - ${req.query.title}`);
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+     },
+     function (err, data) {
+        if (err) {
+            console.error("Unable to find game jams", err);
+            res.sendStatus(500);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+
+    if (jams.length === 0) {
+        return;
+    }
+
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === req.query.title) {
+            const rawJam = jams[i];
+            DynamoDB.deleteItem({
+                TableName: "gameJams",
+                Key: {
+                    gameJamID: rawJam.gameJamID
+                }
+             },
+             function (err) {
+                if (err) {
+                    console.error("Unable to delete game jam", err);
+                    res.sendStatus(500);
+                    return;
+                } else {
+                    res.sendStatus(200);
+                    console.log(`/deleteJam - 200 - ${rawJam.title.S}`);
+                    return;
+                }
+            });
             return;
         }
     }
