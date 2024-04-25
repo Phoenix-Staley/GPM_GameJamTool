@@ -457,17 +457,73 @@ gamejamRouter.post("/postJam", async function (req, res) {
     });
 });
 
-gamejamRouter.get("/getJam", function (req, res) {
+gamejamRouter.get("/getJam", async function (req, res) {
     if (!req.query.title) {
         res.status(400).send("No 'title' query parameter");
         console.log("/getJam - 400 - Bad request");
         return;
     }
 
-    for (let i = 0; i < database.gamejams.length; i++) {
-        if (database.gamejams[i].title === req.query.title) {
-            res.status(200).send(database.gamejams[i]);
-            console.log(`/getJam - 200 - ${database.gamejams[i].title}`);
+    let jams = [];
+    await DynamoDB.scan({
+        TableName: "gameJams"
+    }, function (err, data) {
+        if (err) {
+            res.sendStatus(500);
+            console.log(`/getJam - 500`);
+            console.error(err);
+            return;
+        } else {
+            jams = data.Items;
+        }
+    }).promise();
+
+    let rawJam = {};
+    let refinedJam = {};
+    for (let i = 0; i < jams.length; i++) {
+        if (jams[i].title.S === req.query.title) {
+            rawJam = jams[i];
+            refinedJam = {
+                title: rawJam.title.S,
+                description: rawJam.description.S,
+                date: rawJam.date.S,
+                participants: [],
+                posts: []
+            }
+
+            let posts = [];
+            await DynamoDB.scan({
+                TableName: "posts"
+            }, function (err, data) {
+                if (err) {
+                    res.sendStatus(500);
+                    console.log(`/getJam - 500`);
+                    console.error(err);
+                    return;
+                } else {
+                    posts = data.Items;
+                }
+            }).promise();
+
+            for (let i = 0; i < rawJam.posts.L.length; i++) {
+                for (let j = 0; j < posts.length; j++) {
+                    if (posts[j].postID.S === rawJam.posts.L[i].S) {
+                        const post = posts[j];
+                        refinedJam.posts.push({
+                            title: post.title.S,
+                            date: post.date.S,
+                            content: post.content.S
+                        });
+                    }
+                }
+            }
+
+            for (let i = 0; i < rawJam.participants.L.length; i++) {
+                refinedJam.participants.push(rawJam.participants.L[i].S);
+            }
+
+            res.status(200).send(refinedJam);
+            console.log(`/getJam - 200 - ${jams[i].title}`);
             return;
         }
     }
