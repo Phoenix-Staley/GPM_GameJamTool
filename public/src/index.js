@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   //set_all_game_jams();
   set_all_game_jams_test();
   draw_all_game_jams();
+  console.log(document.cookie);
 });
 
 // initializations
@@ -101,7 +102,9 @@ function draw_all_game_jams(){
     let jam_div = document.createElement('div');
     jam_div.classList.add('jam');
     let a_tag = document.createElement('a');
-    a_tag.setAttribute('href', 'game_jam_view.html');
+    //a_tag.setAttribute('href', 'game_jam_view.html');
+    a_tag.addEventListener('click', function() {
+      test_jam_click(all_game_jams[i])});
     let title = document.createElement('h2');
     title.classList.add('jam_name');
     title.textContent = all_game_jams[i].title;
@@ -120,4 +123,12 @@ function draw_all_game_jams(){
 
 function insertAfter(ref, _new) {
   ref.parentNode.insertBefore(_new, ref.nextSibling);
+}
+
+function test_jam_click(game_jam){
+  // Dispatch a custom event called 'gameJamDetailsUpdated' with the updated details
+  var event = new CustomEvent('gameJamDetailsUpdated', { detail: game_jam});
+  document.dispatchEvent(event);
+
+  window.location.href = 'game_jam_view.html';
 }
