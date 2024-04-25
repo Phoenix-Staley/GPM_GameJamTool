@@ -50,14 +50,16 @@ async function create_account(){
   let status = response.status; // 201 if successfull, 400 if user already found
 
   if (status === 201){ // successful
-    const message = document.createTextNode('user created successfully');
+    const message = document.createElement('p');
+    message.textContent = 'user created successfully';
     output_div.appendChild(message);
     console.log(await response.json()); // gets the user info
     // TODO: login user
     // TODO: send user to self profile page
   }
   else if (status === 400){ // username taken
-    const message = document.createTextNode('username taken');
+    const message = document.createElement('p');
+    message.textContent = 'username already taken';
     output_div.appendChild(message);
 
     // TODO: login user
