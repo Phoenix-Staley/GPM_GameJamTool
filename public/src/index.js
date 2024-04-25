@@ -18,9 +18,10 @@ const date_options = {
 document.addEventListener('DOMContentLoaded', function() {
   //createJamTest();
   //set_all_game_jams();
-  set_all_game_jams_test();
+  //set_all_game_jams_test();
+  set_all_game_jams();
   set_all_users();
-  draw_all_game_jams();
+  //draw_all_game_jams();
 });
 
 // initializations
@@ -83,18 +84,43 @@ profile object
     isAdmin: false,
     bio: "string"
 }
-
-
 */
+
+
+// for testing
+const post_1 = {
+  title: 'test post 1',
+  content: 'content of post',
+  jam_title: "NA",
+  comments: [{poster: 'user 1', content: 'user 1\'s comment'}]
+}
+const post_2 = {
+  title: 'test post 2',
+  content: 'content of post',
+  jam_title: "NA",
+  comments: [
+    {poster: 'user 2', content: 'user 2\'s comment'},
+    {poster: 'user 3', content: 'user 3\'s comment'}
+  ]
+}
+const test_jam = {
+  title: 'game jam with posts',
+  date: 'May 5, 2024 23:00',
+  description: 'future jam test 2 desc',
+  participants: ['test user1', 'test user 2', 'test user 3'],
+  post: [post_1, post_2]
+}
 
 // creates a couple hardcoded jams for testing
 function set_all_game_jams_test(){
+  
+  all_game_jams.push(test_jam);
   for (let i = 1; i <= 5; i++){
     all_game_jams.push({
       title: 'jam ' + i,
       date: 'May ' + i + ', 2024 ' + i + ':00',
       description: 'jam ' + i + ' description',
-      particpants: ['user 1', 'user 2'],
+      participants: ['user 1', 'user 2'],
       post: []
     })
   }
@@ -109,15 +135,20 @@ async function set_all_game_jams(){
   );
   
   let status = response.status; // 201 if successfull, 404 if no jams
-
+  console.log(status);
   if (status === 404){ // no jams found
   }
-  else if (status === 201){ // success
-    all_game_jams = response.json(); // not sure if correct format
+  else if (status === 200){ // success
+    all_game_jams = await response.json(); // not sure if correct format
   }
   else{ // idk something got fucked up
 
   }
+
+  all_game_jams.push(test_jam);
+
+  // has to go after the await response
+  draw_all_game_jams();
 }
 
 async function set_all_users(){
@@ -138,13 +169,15 @@ function draw_all_game_jams(){
   // creates a game jam div for each jam
   all_game_jams.forEach(function(jam){
 
+    console.log(jam);
+
     let jam_div = document.createElement('div');
     jam_div.classList.add('jam');
 
     let a_tag = document.createElement('a');
-    a_tag.setAttribute('href', 'game_jam_view.html');
+    //a_tag.setAttribute('href', 'game_jam_view.html');
     a_tag.addEventListener('click', function() {
-      test_jam_click(jam)});
+      game_jam_clicked(jam)});
 
     let title = document.createElement('h2');
     title.classList.add('jam_name');
@@ -154,7 +187,7 @@ function draw_all_game_jams(){
     begin_time.textContent = jam.date;
 
     let p_count = document.createElement('p');
-    p_count.textContent = jam.particpants.length + ' participants';
+    p_count.textContent = jam.participants.length + ' participants';
   
     jam_div.appendChild(a_tag);
     a_tag.appendChild(title);
@@ -177,17 +210,23 @@ function insertAfter(ref, _new) {
   ref.parentNode.insertBefore(_new, ref.nextSibling);
 }
 
-function test_jam_click(game_jam){
-  // Dispatch a custom event called 'gameJamDetailsUpdated' with the updated details
-  var event = new CustomEvent('gameJamDetailsUpdated', { detail: game_jam});
-  document.dispatchEvent(event);
-
+function game_jam_clicked(game_jam){
+  
+  // store the game jam clicked as a cookie
+  document.cookie = 'game_jam=' + JSON.stringify(game_jam) + '; ';
   window.location.href = 'game_jam_view.html';
+}
+
+// called when a searched user was clicked
+// opens the profile view
+function user_clicked(user){
+  document.cookie = 'view_profile=' + JSON.stringify(user) + '; ';
+  window.location.href = 'profile.html';
 }
 
 // fills the user div with all participants
 function display_searched_users(){
-
+  document.querySelectorAll('.user').forEach(e => e.remove());
   // remove all displayed searched users on empty query
   if (username_input.value === ''){ 
     document.querySelectorAll('.user').forEach(e => e.remove());
@@ -199,7 +238,10 @@ function display_searched_users(){
         username.textContent = user.username;
 
         let a_tag = document.createElement('a');
-        a_tag.setAttribute('href', 'profile.html');
+        //a_tag.setAttribute('href', 'profile.html');
+        a_tag.addEventListener('click', function(){
+          user_clicked(user);
+        });
 
         let user_div = document.createElement('div');
         user_div.classList.add('user');
