@@ -1,0 +1,88 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Jam Manager at WSU</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="icon.png">
+</head>
+
+<body> <!-- main contents of webpage -->
+
+    <header> <!-- contents at top of webpage -->
+
+        <div id="button_div"> <!-- stores the buttons -->
+            <a class="header_button" href="login.html" title="login">
+                <button>Login</button>
+            </a>
+        </div>
+        
+
+    </header>
+
+    <main> <!-- contents of central part of webpage -->
+
+        <h1 id="title" class="title">Game Jam Test Title</h1>
+
+        <div class="container"> <!-- contains the time bars -->
+
+            <div class="flex">
+                <p id="start_date">
+                Starts at:
+                Month XX, YEAR; XX:XX PM
+                </p>
+            </div>
+            <div class="flex">
+                <p id="end_date">
+                Ends at:
+                Month XX, YEAR; XX:XX PM
+                </p>
+            </div>
+
+        </div>
+
+        <div class="title"> <!-- contains the desciption -->
+            <p id="description">This is the game jam description</p>
+        </div>
+
+        <div class="container"> <!-- contains the the links to participants and submissions -->
+            <div class="flex">
+                <div class="flex" id="participants_div"> <!-- future jams header -->
+                    <h2 class="title">Participants</h2>
+                </div>
+            </div>
+
+            <div class="flex">
+                <div class="flex" id="submissions_div"> <!-- future jams header -->
+                    <h2 class="title">Submissions</h2>
+                </div>
+
+                <a href=""><h3>Game 1 (itch.io)</h3></a>
+                <a href=""><h3>Game 2 (itch.io)</h3></a>
+                <a href=""><h3>Game 3 (itch.io)</h3></a>
+                <a href=""><h3>Game 4 (itch.io)</h3></a>
+            </div>
+        </div>
+
+        <div class="flex"> <!-- container for posts section -->
+            <div class="flex" id="info_subheading"> <!-- Posts Header -->
+                <h2 class="title">Posts</h2>
+            </div>
+        </div>
+
+
+    </main>
+
+    <footer> <!-- contents at bottom of webpage -->
+
+
+    </footer>
+    
+
+</body>
+
+    <!-- reference to scripts go at end -->
+    <script src="src/game_jam_view.js"></script>
+
+</html>

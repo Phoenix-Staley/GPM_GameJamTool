@@ -171,6 +171,7 @@ userRouter.post("/signIn", async function (req, res) {
             bio: user.bio.S,
             isAdmin: user.isAdmin.BOOL
         };
+        console.log(req.session.profile);
         res.status(200).send(req.session.profile);
         console.log(`/signIn - 200 - ${user.username.S}`);
         return;
