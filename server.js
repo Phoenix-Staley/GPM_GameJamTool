@@ -653,4 +653,42 @@ postRouter.post("/makePost", async function (req, res) {
     });
 });
 
+let commentCounter = 0; //for commentID
+
+postRouter.post("/makeComment", async function (req, res) {
+    if (!req.query?.jam_title || !req.query?.post_title || !req.query?.comment_title || !req.query?.comment_body) {
+        res.status(400).send("Required query parameters are missing.");
+        console.log("/makeComment - 400 - Bad request");
+        return;
+    }
+
+    const newComment = {
+        commentID: "${req.query.post_title} - ${++commentCounter}",
+        body: req.query.body,
+        poster: req.session?.profile?.username
+    };
+
+    DynamoDB.updateItem({
+        TableName: "posts",
+        Key: {
+            postID: { S: req.query.postID }
+        },
+        UpdateExpression: "SET comments = list_append(comments, :comments)",
+        ExpressionAttributeValue: {
+            ":comments": { L: [{ M: newComment }] }
+        }
+    },
+    function (err) {
+        console.log("After updateItem");
+        if (err) {
+            console.error("Unable to add comment", err);
+        } else {
+            res
+            .status(201)
+            .send(newComment);
+            console.log("/makePost - 201 - ${newComment.commentID");
+        }
+    });
+});
+
 app.listen(PORT);
